@@ -47,7 +47,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       setState(() {
         _successMessage =
-            'Account created successfully! Please check your email for verification.';
+            'Account created successfully! You can now sign in. (If email confirmation is enabled, check your inbox first)';
       });
 
       // Wait a moment to show success message, then navigate back

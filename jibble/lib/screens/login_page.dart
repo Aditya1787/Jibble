@@ -44,7 +44,15 @@ class _LoginPageState extends State<LoginPage> {
       // Navigation is handled by AuthGate listening to auth state changes
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        // Provide more helpful error message for unconfirmed emails
+        final errorString = e.toString().toLowerCase();
+        if (errorString.contains('email not confirmed') ||
+            errorString.contains('email confirmation')) {
+          _errorMessage =
+              'Please confirm your email first. Check your inbox for the confirmation link, or disable email confirmation in Supabase settings for development.';
+        } else {
+          _errorMessage = e.toString();
+        }
       });
     } finally {
       if (mounted) {
