@@ -1,66 +1,73 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 
-late List<CameraDescription> cameras;
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
-  runApp(const CameraTestApp());
+void main() {
+  runApp(const ImagePickerTestApp());
 }
 
-class CameraTestApp extends StatelessWidget {
-  const CameraTestApp({super.key});
+class ImagePickerTestApp extends StatelessWidget {
+  const ImagePickerTestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CameraTestHome(),
+      home: ImagePickerTestHome(),
     );
   }
 }
 
-class CameraTestHome extends StatefulWidget {
-  const CameraTestHome({super.key});
+class ImagePickerTestHome extends StatefulWidget {
+  const ImagePickerTestHome({super.key});
 
   @override
-  State<CameraTestHome> createState() => _CameraTestHomeState();
+  State<ImagePickerTestHome> createState() => _ImagePickerTestHomeState();
 }
 
-class _CameraTestHomeState extends State<CameraTestHome> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+class _ImagePickerTestHomeState extends State<ImagePickerTestHome> {
+  File? image;
+  final ImagePicker picker = ImagePicker();
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = CameraController(
-      cameras[0], // back camera
-      ResolutionPreset.medium,
-    );
-    _initializeControllerFuture = _controller.initialize();
+  Future<void> pickFromGallery() async {
+    final XFile? picked =
+        await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => image = File(picked.path));
+    }
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Future<void> pickFromCamera() async {
+    final XFile? picked =
+        await picker.pickImage(source: ImageSource.camera);
+    if (picked != null) {
+      setState(() => image = File(picked.path));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Camera Test")),
-      body: FutureBuilder(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+      appBar: AppBar(title: const Text("Image Picker Test")),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          image == null
+              ? const Text("No Image Selected")
+              : Image.file(image!, height: 250),
+
+          const SizedBox(height: 20),
+
+          ElevatedButton(
+            onPressed: pickFromGallery,
+            child: const Text("Pick From Gallery"),
+          ),
+
+          ElevatedButton(
+            onPressed: pickFromCamera,
+            child: const Text("Open Camera"),
+          ),
+        ],
       ),
     );
   }
