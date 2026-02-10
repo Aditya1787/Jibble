@@ -1,68 +1,67 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'config/supabase_config.dart';
+import 'widgets/auth_gate.dart';
 
-void main() {
-  runApp(const ApiTestApp());
+/// Main entry point of the application
+///
+/// Initializes Supabase before running the app
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  // Make sure to add your credentials in lib/config/supabase_config.dart
+  await SupabaseConfig.initialize();
+
+  runApp(const MyApp());
 }
 
-class ApiTestApp extends StatelessWidget {
-  const ApiTestApp({super.key});
+/// Root widget of the application
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      title: 'Jibble Auth',
       debugShowCheckedModeBanner: false,
-      home: ApiTestHome(),
-    );
-  }
-}
-
-class ApiTestHome extends StatefulWidget {
-  const ApiTestHome({super.key});
-
-  @override
-  State<ApiTestHome> createState() => _ApiTestHomeState();
-}
-
-class _ApiTestHomeState extends State<ApiTestHome> {
-  String result = "Press button to hit API";
-
-  Future<void> hitApi() async {
-    setState(() => result = "Loading...");
-
-    final response = await http.get(
-      Uri.parse('https://jsonplaceholder.typicode.com/posts/1'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() => result = data['title']);
-    } else {
-      setState(() => result = "API Error");
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("API Hit Test")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              result,
-              textAlign: TextAlign.center,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.blue.shade600, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.red.shade400),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 2,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: hitApi,
-              child: const Text("Hit API"),
-            ),
-          ],
+          ),
         ),
       ),
+      // AuthGate handles routing based on authentication status
+      home: const AuthGate(),
     );
   }
 }
