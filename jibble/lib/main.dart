@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'config/supabase_config.dart';
 import 'widgets/auth_gate.dart';
+import 'screens/home_page.dart';
+import 'screens/profile_page.dart';
+
+// Export MyHomePage so it can be imported by onboarding_gate
+export 'screens/home_page.dart';
 
 /// Main entry point of the application
 ///
@@ -62,6 +67,11 @@ class MyApp extends StatelessWidget {
       ),
       // AuthGate handles routing based on authentication status
       home: const AuthGate(),
+      // Named routes for navigation
+      routes: {
+        '/home': (context) => const MyHomePage(),
+        '/profile': (context) => const ProfilePage(),
+      },
     );
   }
 }
