@@ -1,73 +1,67 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
-  runApp(const ImagePickerTestApp());
+  runApp(const ApiTestApp());
 }
 
-class ImagePickerTestApp extends StatelessWidget {
-  const ImagePickerTestApp({super.key});
+class ApiTestApp extends StatelessWidget {
+  const ApiTestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ImagePickerTestHome(),
+      home: ApiTestHome(),
     );
   }
 }
 
-class ImagePickerTestHome extends StatefulWidget {
-  const ImagePickerTestHome({super.key});
+class ApiTestHome extends StatefulWidget {
+  const ApiTestHome({super.key});
 
   @override
-  State<ImagePickerTestHome> createState() => _ImagePickerTestHomeState();
+  State<ApiTestHome> createState() => _ApiTestHomeState();
 }
 
-class _ImagePickerTestHomeState extends State<ImagePickerTestHome> {
-  File? image;
-  final ImagePicker picker = ImagePicker();
+class _ApiTestHomeState extends State<ApiTestHome> {
+  String result = "Press button to hit API";
 
-  Future<void> pickFromGallery() async {
-    final XFile? picked =
-        await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => image = File(picked.path));
-    }
-  }
+  Future<void> hitApi() async {
+    setState(() => result = "Loading...");
 
-  Future<void> pickFromCamera() async {
-    final XFile? picked =
-        await picker.pickImage(source: ImageSource.camera);
-    if (picked != null) {
-      setState(() => image = File(picked.path));
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/posts/1'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() => result = data['title']);
+    } else {
+      setState(() => result = "API Error");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Image Picker Test")),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          image == null
-              ? const Text("No Image Selected")
-              : Image.file(image!, height: 250),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: pickFromGallery,
-            child: const Text("Pick From Gallery"),
-          ),
-
-          ElevatedButton(
-            onPressed: pickFromCamera,
-            child: const Text("Open Camera"),
-          ),
-        ],
+      appBar: AppBar(title: const Text("API Hit Test")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              result,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: hitApi,
+              child: const Text("Hit API"),
+            ),
+          ],
+        ),
       ),
     );
   }
