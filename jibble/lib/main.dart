@@ -1,92 +1,99 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const FontTestApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FontTestApp extends StatelessWidget {
+  const FontTestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Task Checker App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const TaskHomePage(),
+      title: 'Font Tester',
+      home: const FontTestHome(),
     );
   }
 }
 
-class TaskHomePage extends StatefulWidget {
-  const TaskHomePage({super.key});
-
-  @override
-  State<TaskHomePage> createState() => _TaskHomePageState();
-}
-
-class _TaskHomePageState extends State<TaskHomePage> {
-  final TextEditingController _controller = TextEditingController();
-  final List<String> tasks = [];
-
-  void addTask() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        tasks.add(_controller.text);
-        _controller.clear();
-      });
-    }
-  }
-
-  void removeTask(int index) {
-    setState(() {
-      tasks.removeAt(index);
-    });
-  }
+class FontTestHome extends StatelessWidget {
+  const FontTestHome({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Tasks"),
+        title: const Text("Font Testing"),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                labelText: "Enter task",
-                border: OutlineInputBorder(),
+
+            // POPPINS
+            Text(
+              "Poppins Font",
+              style: GoogleFonts.poppins(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: addTask,
-              child: const Text("Add Task"),
+            const SizedBox(height: 8),
+            Text(
+              "This is how posts, captions, and UI text will look using Poppins.",
+              style: GoogleFonts.poppins(fontSize: 16),
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: tasks.isEmpty
-                  ? const Center(child: Text("No tasks added"))
-                  : ListView.builder(
-                      itemCount: tasks.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            title: Text(tasks[index]),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => removeTask(index),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+
+            const Divider(height: 40),
+
+            // INTER
+            Text(
+              "Inter Font",
+              style: GoogleFonts.inter(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Inter is clean and perfect for feeds, comments, and long reading text.",
+              style: GoogleFonts.inter(fontSize: 16),
+            ),
+
+            const Divider(height: 40),
+
+            // DANCING SCRIPT
+            Text(
+              "Dancing Script",
+              style: GoogleFonts.dancingScript(
+                fontSize: 30,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Best for usernames, quotes, bios, and artistic content.",
+              style: GoogleFonts.dancingScript(fontSize: 18),
+            ),
+
+            const SizedBox(height: 40),
+
+            // BUTTON TEST
+            Center(
+              child: ElevatedButton(
+                onPressed: () {},
+                child: Text(
+                  "Post Now",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
