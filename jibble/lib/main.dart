@@ -3,6 +3,8 @@ import 'config/supabase_config.dart';
 import 'widgets/auth_gate.dart';
 import 'screens/home_page.dart';
 import 'screens/profile_page.dart';
+import 'screens/splash/splash_screen.dart';
+import 'services/first_launch_service.dart';
 
 // Export MyHomePage so it can be imported by onboarding_gate
 export 'screens/home_page.dart';
@@ -65,8 +67,24 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      // AuthGate handles routing based on authentication status
-      home: const AuthGate(),
+      // Check if first launch and show appropriate screen
+      home: FutureBuilder<bool>(
+        future: FirstLaunchService().isFirstLaunch(),
+        builder: (context, snapshot) {
+          // Show loading while checking first launch status
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          // Show splash screen on first launch, otherwise show AuthGate
+          final isFirstLaunch = snapshot.data ?? false;
+          return isFirstLaunch
+              ? const EnhancedSplashScreen()
+              : const AuthGate();
+        },
+      ),
       // Named routes for navigation
       routes: {
         '/home': (context) => const MyHomePage(),
