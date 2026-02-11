@@ -1,0 +1,490 @@
+import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import '../../services/profile_service.dart';
+import '../../services/follow_service.dart';
+import '../../models/profile_model.dart';
+import 'followers_list_page.dart';
+import 'following_list_page.dart';
+
+/// Profile Page
+///
+/// Displays the current user's profile information and provides logout functionality
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final _authService = AuthService();
+  final _profileService = ProfileService();
+  final _followService = FollowService();
+
+  ProfileModel? _profile;
+  bool _isLoading = true;
+  String? _errorMessage;
+  int _followerCount = 0;
+  int _followingCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        final profile = await _profileService.getProfile(user.id);
+        final followerCount = await _followService.getFollowerCount(user.id);
+        final followingCount = await _followService.getFollowingCount(user.id);
+
+        setState(() {
+          _profile = profile;
+          _followerCount = followerCount;
+          _followingCount = followingCount;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  int _calculateAge(DateTime birthDate) {
+    final today = DateTime.now();
+    int age = today.year - birthDate.year;
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = _authService.currentUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        elevation: 0,
+        backgroundColor: Colors.blue.shade600,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('/home');
+            },
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.blue.shade600, Colors.blue.shade50],
+                  stops: const [0.0, 0.3],
+                ),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            )
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.blue.shade600, Colors.blue.shade50],
+                  stops: const [0.0, 0.3],
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // User Avatar with Profile Picture
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: _profile?.profilePictureUrl != null
+                              ? ClipOval(
+                                  child: Image.network(
+                                    _profile!.profilePictureUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: Colors.blue.shade600,
+                                      );
+                                    },
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.blue.shade600,
+                                ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Username
+                        if (_profile?.username != null) ...[
+                          Text(
+                            '@${_profile!.username}',
+                            style: Theme.of(context).textTheme.headlineMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+
+                        // User email
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            user?.email ?? 'No email',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Follower/Following Stats
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildStatItem(
+                              'Followers',
+                              _followerCount.toString(),
+                              () {
+                                Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowersListPage(
+                                          userId: user!.id,
+                                          isOwnProfile: true,
+                                        ),
+                                      ),
+                                    )
+                                    .then((_) => _loadProfile());
+                              },
+                            ),
+                            const SizedBox(width: 32),
+                            _buildStatItem(
+                              'Following',
+                              _followingCount.toString(),
+                              () {
+                                Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FollowingListPage(userId: user!.id),
+                                      ),
+                                    )
+                                    .then((_) => _loadProfile());
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 48),
+
+                        // Profile info card
+                        Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Account Information',
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Username
+                                if (_profile?.username != null) ...[
+                                  _buildInfoRow(
+                                    Icons.alternate_email,
+                                    'Username',
+                                    _profile!.username,
+                                  ),
+                                  const Divider(height: 24),
+                                ],
+
+                                // Date of Birth
+                                if (_profile?.dateOfBirth != null) ...[
+                                  _buildInfoRow(
+                                    Icons.cake_outlined,
+                                    'Date of Birth',
+                                    '${_formatDate(_profile!.dateOfBirth!)} (${_calculateAge(_profile!.dateOfBirth!)} years old)',
+                                  ),
+                                  const Divider(height: 24),
+                                ],
+
+                                // College
+                                if (_profile?.collegeName != null) ...[
+                                  _buildInfoRow(
+                                    Icons.school_outlined,
+                                    'College',
+                                    _profile!.collegeName!,
+                                  ),
+                                  const Divider(height: 24),
+                                ],
+
+                                // Email
+                                _buildInfoRow(
+                                  Icons.email_outlined,
+                                  'Email',
+                                  user?.email ?? 'Not available',
+                                ),
+                                const Divider(height: 24),
+
+                                // User ID
+                                _buildInfoRow(
+                                  Icons.verified_user_outlined,
+                                  'User ID',
+                                  user?.id ?? 'Not available',
+                                ),
+                                const Divider(height: 24),
+
+                                // Account Created
+                                _buildInfoRow(
+                                  Icons.calendar_today_outlined,
+                                  'Account Created',
+                                  user?.createdAt != null
+                                      ? _formatDate(
+                                          DateTime.parse(user!.createdAt),
+                                        )
+                                      : 'Not available',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Error message
+                        if (_errorMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.red.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage!,
+                                    style: TextStyle(
+                                      color: Colors.red.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Logout button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              // Show confirmation dialog
+                              final shouldLogout = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Logout'),
+                                  content: const Text(
+                                    'Are you sure you want to logout?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      child: const Text('Logout'),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (shouldLogout == true) {
+                                try {
+                                  await _authService.signOut();
+                                  // Navigate to login page after successful logout
+                                  if (context.mounted) {
+                                    Navigator.of(
+                                      context,
+                                    ).pushNamedAndRemoveUntil(
+                                      '/',
+                                      (route) => false,
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error logging out: $e'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            icon: const Icon(Icons.logout),
+                            label: const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.red.shade600,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.blue.shade600, size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

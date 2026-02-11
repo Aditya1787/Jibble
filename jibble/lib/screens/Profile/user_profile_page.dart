@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../services/profile_service.dart';
-import '../models/profile_model.dart';
+import '../../services/auth_service.dart';
+import '../../services/user_search_service.dart';
+import '../../services/follow_service.dart';
+import '../../models/profile_model.dart';
+import '../Follow/follow_button_widget.dart';
+import 'followers_list_page.dart';
+import 'following_list_page.dart';
 
-/// Profile Page
+/// User Profile Page
 ///
-/// Displays the current user's profile information and provides logout functionality
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+/// Displays another user's profile with follow/unfollow functionality
+class UserProfilePage extends StatefulWidget {
+  final String userId;
+
+  const UserProfilePage({super.key, required this.userId});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<UserProfilePage> createState() => _UserProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _UserProfilePageState extends State<UserProfilePage> {
   final _authService = AuthService();
-  final _profileService = ProfileService();
+  final _userSearchService = UserSearchService();
+  final _followService = FollowService();
 
   ProfileModel? _profile;
   bool _isLoading = true;
-  String? _errorMessage;
+  bool _isFollowing = false;
+  int _followerCount = 0;
+  int _followingCount = 0;
 
   @override
   void initState() {
@@ -30,21 +39,27 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadProfile() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
-      final user = _authService.currentUser;
-      if (user != null) {
-        final profile = await _profileService.getProfile(user.id);
-        setState(() {
-          _profile = profile;
-          _isLoading = false;
-        });
-      }
+      final profile = await _userSearchService.getUserProfile(widget.userId);
+      final isFollowing = await _followService.isFollowing(widget.userId);
+      final followerCount = await _followService.getFollowerCount(
+        widget.userId,
+      );
+      final followingCount = await _followService.getFollowingCount(
+        widget.userId,
+      );
+
+      setState(() {
+        _profile = profile;
+        _isFollowing = isFollowing;
+        _followerCount = followerCount;
+        _followingCount = followingCount;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
@@ -64,9 +79,38 @@ class _ProfilePageState extends State<ProfilePage> {
     return age;
   }
 
+  Future<void> _refreshCounts() async {
+    try {
+      final followerCount = await _followService.getFollowerCount(
+        widget.userId,
+      );
+      final followingCount = await _followService.getFollowingCount(
+        widget.userId,
+      );
+      final isFollowing = await _followService.isFollowing(widget.userId);
+
+      setState(() {
+        _followerCount = followerCount;
+        _followingCount = followingCount;
+        _isFollowing = isFollowing;
+      });
+    } catch (e) {
+      // Silently fail
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final user = _authService.currentUser;
+    final currentUserId = _authService.currentUser?.id;
+    final isOwnProfile = currentUserId == widget.userId;
+
+    // If viewing own profile, navigate to the main profile page
+    if (isOwnProfile) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/profile');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -74,14 +118,6 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 0,
         backgroundColor: Colors.blue.shade600,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/home');
-            },
-          ),
-        ],
       ),
       body: _isLoading
           ? Container(
@@ -176,7 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            user?.email ?? 'No email',
+                            _profile?.email ?? 'No email',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.white,
@@ -184,7 +220,55 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 24),
+
+                        // Follower/Following Stats
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildStatItem(
+                              'Followers',
+                              _followerCount.toString(),
+                              () {
+                                Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowersListPage(
+                                          userId: widget.userId,
+                                          isOwnProfile: false,
+                                        ),
+                                      ),
+                                    )
+                                    .then((_) => _refreshCounts());
+                              },
+                            ),
+                            const SizedBox(width: 32),
+                            _buildStatItem(
+                              'Following',
+                              _followingCount.toString(),
+                              () {
+                                Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowingListPage(
+                                          userId: widget.userId,
+                                        ),
+                                      ),
+                                    )
+                                    .then((_) => _refreshCounts());
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Follow Button
+                        FollowButtonWidget(
+                          userId: widget.userId,
+                          initialIsFollowing: _isFollowing,
+                          onFollowChanged: _refreshCounts,
+                        ),
+                        const SizedBox(height: 32),
 
                         // Profile info card
                         Card(
@@ -198,7 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Account Information',
+                                  'Profile Information',
                                   style: Theme.of(context).textTheme.titleLarge
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
@@ -238,135 +322,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 _buildInfoRow(
                                   Icons.email_outlined,
                                   'Email',
-                                  user?.email ?? 'Not available',
-                                ),
-                                const Divider(height: 24),
-
-                                // User ID
-                                _buildInfoRow(
-                                  Icons.verified_user_outlined,
-                                  'User ID',
-                                  user?.id ?? 'Not available',
-                                ),
-                                const Divider(height: 24),
-
-                                // Account Created
-                                _buildInfoRow(
-                                  Icons.calendar_today_outlined,
-                                  'Account Created',
-                                  user?.createdAt != null
-                                      ? _formatDate(
-                                          DateTime.parse(user!.createdAt),
-                                        )
-                                      : 'Not available',
+                                  _profile?.email ?? 'Not available',
                                 ),
                               ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
-                        // Error message
-                        if (_errorMessage != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  color: Colors.red.shade700,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: TextStyle(
-                                      color: Colors.red.shade700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                        // Logout button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              // Show confirmation dialog
-                              final shouldLogout = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Logout'),
-                                  content: const Text(
-                                    'Are you sure you want to logout?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      child: const Text('Logout'),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (shouldLogout == true) {
-                                try {
-                                  await _authService.signOut();
-                                  // Navigate to login page after successful logout
-                                  if (context.mounted) {
-                                    Navigator.of(
-                                      context,
-                                    ).pushNamedAndRemoveUntil(
-                                      '/',
-                                      (route) => false,
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error logging out: $e'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                }
-                              }
-                            },
-                            icon: const Icon(Icons.logout),
-                            label: const Text(
-                              'Logout',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Colors.red.shade600,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
                             ),
                           ),
                         ),
@@ -376,6 +334,32 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

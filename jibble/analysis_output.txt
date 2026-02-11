@@ -1,0 +1,2 @@
+[info] Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check (D:\Uniclub\Application\jibble\lib\screens\home_page.dart:313:27)
+[info] Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check (D:\Uniclub\Application\jibble\lib\screens\home_page.dart:318:46)

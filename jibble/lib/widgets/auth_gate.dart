@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
-import '../screens/login_page.dart';
+import '../screens/Authentication/login_page.dart';
 import 'onboarding_gate.dart';
 
 /// Authentication Gate

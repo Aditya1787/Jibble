@@ -1,58 +1,63 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import 'register_page.dart';
+import '../../services/auth_service.dart';
 
-/// Login Page
+/// Register Page
 ///
-/// Allows users to sign in with email and password
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+/// Allows new users to create an account with email and password
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _authService = AuthService();
 
   bool _isLoading = false;
   String? _errorMessage;
+  String? _successMessage;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
     try {
-      await _authService.signIn(
+      await _authService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      // Navigation is handled by AuthGate listening to auth state changes
+
+      setState(() {
+        _successMessage =
+            'Account created successfully! You can now sign in. (If email confirmation is enabled, check your inbox first)';
+      });
+
+      // Wait a moment to show success message, then navigate back
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
       setState(() {
-        // Provide more helpful error message for unconfirmed emails
-        final errorString = e.toString().toLowerCase();
-        if (errorString.contains('email not confirmed') ||
-            errorString.contains('email confirmation')) {
-          _errorMessage =
-              'Please confirm your email first. Check your inbox for the confirmation link, or disable email confirmation in Supabase settings for development.';
-        } else {
-          _errorMessage = e.toString();
-        }
+        _errorMessage = e.toString();
       });
     } finally {
       if (mounted) {
@@ -71,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade400, Colors.purple.shade400],
+            colors: [Colors.purple.shade400, Colors.blue.shade400],
           ),
         ),
         child: SafeArea(
@@ -93,13 +98,13 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         // Logo/Title
                         Icon(
-                          Icons.lock_outline,
+                          Icons.person_add_outlined,
                           size: 64,
-                          color: Colors.blue.shade600,
+                          color: Colors.purple.shade600,
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Welcome Back',
+                          'Create Account',
                           style: Theme.of(context).textTheme.headlineMedium
                               ?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -109,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Sign in to continue',
+                          'Sign up to get started',
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: Colors.grey.shade600),
                           textAlign: TextAlign.center,
@@ -152,10 +157,33 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return 'Please enter a password';
                             }
                             if (value.length < 6) {
                               return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Confirm Password field
+                        TextFormField(
+                          controller: _confirmPasswordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            labelText: 'Confirm Password',
+                            prefixIcon: const Icon(Icons.lock_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please confirm your password';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match';
                             }
                             return null;
                           },
@@ -192,15 +220,45 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
 
-                        // Login button
+                        // Success message
+                        if (_successMessage != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.check_circle_outline,
+                                  color: Colors.green.shade700,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _successMessage!,
+                                    style: TextStyle(
+                                      color: Colors.green.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Register button
                         ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: _isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            backgroundColor: Colors.blue.shade600,
+                            backgroundColor: Colors.purple.shade600,
                             foregroundColor: Colors.white,
                           ),
                           child: _isLoading
@@ -215,7 +273,7 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                                 )
                               : const Text(
-                                  'Sign In',
+                                  'Sign Up',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -224,24 +282,20 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Register link
+                        // Back to login link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Don't have an account? ",
+                              'Already have an account? ',
                               style: TextStyle(color: Colors.grey.shade600),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const RegisterPage(),
-                                  ),
-                                );
+                                Navigator.of(context).pop();
                               },
                               child: const Text(
-                                'Sign Up',
+                                'Sign In',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),

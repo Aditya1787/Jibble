@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'config/supabase_config.dart';
 import 'widgets/auth_gate.dart';
 import 'screens/home_page.dart';
-import 'screens/profile_page.dart';
+import 'screens/Profile/profile_page.dart';
+import 'screens/Search/search_page.dart';
 import 'screens/splash/splash_screen.dart';
 import 'services/first_launch_service.dart';
 
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const MyHomePage(),
         '/profile': (context) => const ProfilePage(),
+        '/search': (context) => const SearchPage(),
       },
     );
   }
