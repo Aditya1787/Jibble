@@ -101,28 +101,31 @@ class FollowService {
   /// Get list of followers for a user
   Future<List<UserSearchModel>> getFollowers(String userId) async {
     try {
-      final response = await _supabase
+      // First, get all follower IDs
+      final followsResponse = await _supabase
           .from('follows')
-          .select('follower_id, profiles!follows_follower_id_fkey(*)')
+          .select('follower_id')
           .eq('following_id', userId);
 
-      final List<UserSearchModel> followers = [];
-      for (final item in response) {
-        final profile = item['profiles'];
-        if (profile != null) {
-          followers.add(
-            UserSearchModel(
-              id: item['follower_id'] as String,
-              email: profile['email'] as String? ?? '',
-              username: profile['username'] as String?,
-              profilePictureUrl: profile['profile_picture_url'] as String?,
-              collegeName: profile['college_name'] as String?,
-            ),
-          );
-        }
+      if (followsResponse.isEmpty) {
+        return [];
       }
 
-      return followers;
+      // Extract follower IDs
+      final followerIds = (followsResponse as List)
+          .map((item) => item['follower_id'] as String)
+          .toList();
+
+      // Then, get profiles for those IDs
+      final profilesResponse = await _supabase
+          .from('profiles')
+          .select('id, email, username, profile_picture_url, college_name')
+          .inFilter('id', followerIds);
+
+      // Convert to UserSearchModel
+      return (profilesResponse as List)
+          .map((json) => UserSearchModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw Exception('Failed to get followers: $e');
     }
@@ -131,28 +134,31 @@ class FollowService {
   /// Get list of users that a user is following
   Future<List<UserSearchModel>> getFollowing(String userId) async {
     try {
-      final response = await _supabase
+      // First, get all following IDs
+      final followsResponse = await _supabase
           .from('follows')
-          .select('following_id, profiles!follows_following_id_fkey(*)')
+          .select('following_id')
           .eq('follower_id', userId);
 
-      final List<UserSearchModel> following = [];
-      for (final item in response) {
-        final profile = item['profiles'];
-        if (profile != null) {
-          following.add(
-            UserSearchModel(
-              id: item['following_id'] as String,
-              email: profile['email'] as String? ?? '',
-              username: profile['username'] as String?,
-              profilePictureUrl: profile['profile_picture_url'] as String?,
-              collegeName: profile['college_name'] as String?,
-            ),
-          );
-        }
+      if (followsResponse.isEmpty) {
+        return [];
       }
 
-      return following;
+      // Extract following IDs
+      final followingIds = (followsResponse as List)
+          .map((item) => item['following_id'] as String)
+          .toList();
+
+      // Then, get profiles for those IDs
+      final profilesResponse = await _supabase
+          .from('profiles')
+          .select('id, email, username, profile_picture_url, college_name')
+          .inFilter('id', followingIds);
+
+      // Convert to UserSearchModel
+      return (profilesResponse as List)
+          .map((json) => UserSearchModel.fromJson(json))
+          .toList();
     } catch (e) {
       throw Exception('Failed to get following: $e');
     }
