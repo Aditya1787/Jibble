@@ -160,7 +160,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           fontSize: 18,
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           fontWeight: FontWeight.w400,
                           letterSpacing: 1.5,
                           height: 1.4,
@@ -177,7 +177,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                           textAlign: TextAlign.center,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w300,
                             letterSpacing: 0.5,
                             height: 1.5,
@@ -202,7 +202,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                       child: CircularProgressIndicator(
                         strokeWidth: 3,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.white.withOpacity(0.8),
+                          Colors.white.withValues(alpha: 0.8),
                         ),
                       ),
                     ),
@@ -211,7 +211,7 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                       'Loading your experience...',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w300,
                         letterSpacing: 0.5,
                       ),
