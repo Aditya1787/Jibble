@@ -331,7 +331,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               if (shouldLogout == true) {
                                 try {
                                   await _authService.signOut();
-                                  // Navigation is handled by AuthGate listening to auth state changes
+                                  // Navigate to login page after successful logout
+                                  if (context.mounted) {
+                                    Navigator.of(
+                                      context,
+                                    ).pushNamedAndRemoveUntil(
+                                      '/',
+                                      (route) => false,
+                                    );
+                                  }
                                 } catch (e) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
