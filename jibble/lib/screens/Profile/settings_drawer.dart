@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
+
 import '../../models/profile_model.dart';
 import 'account_information_page.dart';
 

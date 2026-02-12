@@ -62,20 +62,6 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  int _calculateAge(DateTime birthDate) {
-    final today = DateTime.now();
-    int age = today.year - birthDate.year;
-    if (today.month < birthDate.month ||
-        (today.month == birthDate.month && today.day < birthDate.day)) {
-      age--;
-    }
-    return age;
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = _authService.currentUser;
