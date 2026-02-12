@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
 import '../models/profile_model.dart';
+import 'Chat/chat_list_page.dart';
 
 /// Main Home Page with Instagram-like UI
 ///
@@ -76,10 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
         );
         break;
       case 4: // Chat
-        // TODO: Navigate to chat page
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chat feature coming soon!')),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (context) => const ChatListPage()));
         break;
     }
   }

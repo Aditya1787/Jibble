@@ -119,7 +119,9 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
 
       // Navigate to home - AuthGate will handle this
       if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
       }
     } catch (e) {
       setState(() {
@@ -154,7 +156,9 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
 
       // Navigate to home
       if (mounted) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
       }
     } catch (e) {
       setState(() {

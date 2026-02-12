@@ -6,6 +6,7 @@ import '../../models/profile_model.dart';
 import '../Follow/follow_button_widget.dart';
 import 'followers_list_page.dart';
 import 'following_list_page.dart';
+import '../Chat/chat_arena_page.dart';
 
 /// User Profile Page
 ///
@@ -267,6 +268,38 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           userId: widget.userId,
                           initialIsFollowing: _isFollowing,
                           onFollowChanged: _refreshCounts,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Message Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ChatArenaPage(
+                                    conversationId:
+                                        '', // Will be created if doesn't exist
+                                    otherUserId: widget.userId,
+                                    otherUserName: _profile?.username,
+                                    otherUserProfilePic:
+                                        _profile?.profilePictureUrl,
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.chat_bubble_outline),
+                            label: const Text('Message'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 32),
 

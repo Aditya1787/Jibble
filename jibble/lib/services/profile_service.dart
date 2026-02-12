@@ -56,7 +56,7 @@ class ProfileService {
 
       final response = await supabase
           .from('profiles')
-          .insert(profileData)
+          .upsert(profileData)
           .select()
           .single();
 

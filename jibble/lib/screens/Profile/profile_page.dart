@@ -5,6 +5,7 @@ import '../../services/follow_service.dart';
 import '../../models/profile_model.dart';
 import 'followers_list_page.dart';
 import 'following_list_page.dart';
+import 'settings_drawer.dart';
 
 /// Profile Page
 ///
@@ -86,13 +87,38 @@ class _ProfilePageState extends State<ProfilePage> {
         backgroundColor: Colors.blue.shade600,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/home');
-            },
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            ),
           ),
         ],
+      ),
+      endDrawer: SettingsDrawer(
+        profile: _profile,
+        onLogout: () async {
+          try {
+            await _authService.signOut();
+            // Navigate to login page after successful logout
+            if (mounted) {
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/', (route) => false);
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error logging out: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
       ),
       body: _isLoading
           ? Container(
@@ -176,25 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(height: 8),
                         ],
 
-                        // User email
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            user?.email ?? 'No email',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        // User email - REMOVED
                         const SizedBox(height: 24),
 
                         // Follower/Following Stats
@@ -236,86 +244,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Profile info card
-                        Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Account Information',
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 16),
-
-                                // Username
-                                if (_profile?.username != null) ...[
-                                  _buildInfoRow(
-                                    Icons.alternate_email,
-                                    'Username',
-                                    _profile!.username,
-                                  ),
-                                  const Divider(height: 24),
-                                ],
-
-                                // Date of Birth
-                                if (_profile?.dateOfBirth != null) ...[
-                                  _buildInfoRow(
-                                    Icons.cake_outlined,
-                                    'Date of Birth',
-                                    '${_formatDate(_profile!.dateOfBirth!)} (${_calculateAge(_profile!.dateOfBirth!)} years old)',
-                                  ),
-                                  const Divider(height: 24),
-                                ],
-
-                                // College
-                                if (_profile?.collegeName != null) ...[
-                                  _buildInfoRow(
-                                    Icons.school_outlined,
-                                    'College',
-                                    _profile!.collegeName!,
-                                  ),
-                                  const Divider(height: 24),
-                                ],
-
-                                // Email
-                                _buildInfoRow(
-                                  Icons.email_outlined,
-                                  'Email',
-                                  user?.email ?? 'Not available',
-                                ),
-                                const Divider(height: 24),
-
-                                // User ID
-                                _buildInfoRow(
-                                  Icons.verified_user_outlined,
-                                  'User ID',
-                                  user?.id ?? 'Not available',
-                                ),
-                                const Divider(height: 24),
-
-                                // Account Created
-                                _buildInfoRow(
-                                  Icons.calendar_today_outlined,
-                                  'Account Created',
-                                  user?.createdAt != null
-                                      ? _formatDate(
-                                          DateTime.parse(user!.createdAt),
-                                        )
-                                      : 'Not available',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-
                         // Error message
                         if (_errorMessage != null)
                           Container(
@@ -345,81 +273,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                           ),
-
-                        // Logout button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              // Show confirmation dialog
-                              final shouldLogout = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Logout'),
-                                  content: const Text(
-                                    'Are you sure you want to logout?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(true),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      child: const Text('Logout'),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (shouldLogout == true) {
-                                try {
-                                  await _authService.signOut();
-                                  // Navigate to login page after successful logout
-                                  if (context.mounted) {
-                                    Navigator.of(
-                                      context,
-                                    ).pushNamedAndRemoveUntil(
-                                      '/',
-                                      (route) => false,
-                                    );
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Error logging out: $e'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                }
-                              }
-                            },
-                            icon: const Icon(Icons.logout),
-                            label: const Text(
-                              'Logout',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Colors.red.shade600,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -452,39 +305,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.blue.shade600, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
