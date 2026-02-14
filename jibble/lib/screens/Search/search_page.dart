@@ -5,7 +5,7 @@ import 'user_search_result_widget.dart';
 
 /// Search Page
 ///
-/// Allows users to search for other users by username
+/// Allows users to search for other users
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -19,7 +19,7 @@ class _SearchPageState extends State<SearchPage> {
 
   List<UserSearchModel> _searchResults = [];
   bool _isLoading = false;
-  bool _hasSearched = false;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -31,14 +31,14 @@ class _SearchPageState extends State<SearchPage> {
     if (query.trim().isEmpty) {
       setState(() {
         _searchResults = [];
-        _hasSearched = false;
+        _errorMessage = null;
       });
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _hasSearched = true;
+      _errorMessage = null;
     });
 
     try {
@@ -49,16 +49,9 @@ class _SearchPageState extends State<SearchPage> {
       });
     } catch (e) {
       setState(() {
+        _errorMessage = e.toString();
         _isLoading = false;
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Search failed: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
@@ -82,12 +75,12 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           // Search Bar
           Container(
-            padding: const EdgeInsets.all(16),
             color: Colors.white,
+            padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search by username...',
+                hintText: 'Search by username or email...',
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF6B4CE6)),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -104,13 +97,16 @@ class _SearchPageState extends State<SearchPage> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF6B4CE6),
+                    width: 2,
+                  ),
                 ),
               ),
               onChanged: (value) {
-                setState(() {}); // Rebuild to show/hide clear button
+                setState(() {}); // Update UI for clear button
                 _performSearch(value);
               },
             ),
@@ -126,61 +122,58 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                   )
-                : _hasSearched && _searchResults.isEmpty
+                : _errorMessage != null
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.search_off,
+                          Icons.error_outline,
                           size: 64,
-                          color: Colors.grey.shade400,
+                          color: Colors.red.shade400,
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No users found',
+                          'Error searching users',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
+                            color: Colors.red.shade700,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          'Try searching with a different username',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade500,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            _errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ),
                       ],
                     ),
                   )
-                : !_hasSearched
+                : _searchResults.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.person_search,
+                          _searchController.text.isEmpty
+                              ? Icons.search
+                              : Icons.person_search,
                           size: 64,
                           color: Colors.grey.shade400,
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Search for users',
+                          _searchController.text.isEmpty
+                              ? 'Start searching for users'
+                              : 'No users found',
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.grey.shade600,
                             fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Enter a username to find people',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade500,
                           ),
                         ),
                       ],

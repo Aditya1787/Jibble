@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import '../../services/chat_service.dart';
 import '../../models/chat_model.dart';
 import '../../widgets/Chat/chat_list_item_widget.dart';
-import 'chat_arena_page.dart';
 
 /// Chat List Page
 ///
-/// Displays a list of all conversations for the current user
+/// Displays all chat conversations for the current user
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
 
@@ -15,29 +15,34 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> {
+  final _authService = AuthService();
   final _chatService = ChatService();
-  List<ChatModel> _conversations = [];
+
+  List<ChatModel> _chats = [];
   bool _isLoading = true;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadConversations();
+    _loadChats();
   }
 
-  Future<void> _loadConversations() async {
+  Future<void> _loadChats() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final conversations = await _chatService.getConversations();
-      setState(() {
-        _conversations = conversations;
-        _isLoading = false;
-      });
+      final user = _authService.currentUser;
+      if (user != null) {
+        final chats = await _chatService.getUserChats(user.id);
+        setState(() {
+          _chats = chats;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -46,47 +51,21 @@ class _ChatListPageState extends State<ChatListPage> {
     }
   }
 
-  void _navigateToChat(ChatModel chat) {
-    Navigator.of(context)
-        .push(
-          MaterialPageRoute(
-            builder: (context) => ChatArenaPage(
-              conversationId: chat.id,
-              otherUserId: chat.otherUserId,
-              otherUserName: chat.otherUserName,
-              otherUserProfilePic: chat.otherUserProfilePic,
-            ),
-          ),
-        )
-        .then((_) {
-          // Refresh list when returning from chat
-          _loadConversations();
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        elevation: 0,
         backgroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           'Messages',
           style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
+            color: Color(0xFF6B4CE6),
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.black),
-            onPressed: () {
-              // TODO: Implement conversation search
-            },
-          ),
-        ],
+        iconTheme: const IconThemeData(color: Color(0xFF6B4CE6)),
       ),
       body: _isLoading
           ? const Center(
@@ -106,7 +85,7 @@ class _ChatListPageState extends State<ChatListPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading messages',
+                    'Error loading chats',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.red.shade700,
@@ -124,7 +103,7 @@ class _ChatListPageState extends State<ChatListPage> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _loadConversations,
+                    onPressed: _loadChats,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF6B4CE6),
                       foregroundColor: Colors.white,
@@ -134,52 +113,39 @@ class _ChatListPageState extends State<ChatListPage> {
                 ],
               ),
             )
-          : _conversations.isEmpty
+          : _chats.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6B4CE6).withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.chat_bubble_outline,
-                      size: 64,
-                      color: Color(0xFF6B4CE6),
-                    ),
+                  Icon(
+                    Icons.chat_bubble_outline,
+                    size: 64,
+                    color: Colors.grey.shade400,
                   ),
-                  const SizedBox(height: 24),
-                  const Text(
+                  const SizedBox(height: 16),
+                  Text(
                     'No messages yet',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      fontSize: 18,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
-                    'Start a conversation with your friends!',
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                    'Start a conversation from a user profile',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                   ),
                 ],
               ),
             )
           : RefreshIndicator(
-              onRefresh: _loadConversations,
-              color: const Color(0xFF6B4CE6),
+              onRefresh: _loadChats,
               child: ListView.builder(
-                itemCount: _conversations.length,
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: _chats.length,
                 itemBuilder: (context, index) {
-                  final chat = _conversations[index];
-                  return ChatListItemWidget(
-                    chat: chat,
-                    onTap: () => _navigateToChat(chat),
-                  );
+                  return ChatListItemWidget(chat: _chats[index]);
                 },
               ),
             ),

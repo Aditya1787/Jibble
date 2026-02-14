@@ -1,143 +1,119 @@
 import 'package:flutter/material.dart';
 import '../../models/chat_model.dart';
+import '../Chat/chat_arena_page.dart';
 
 /// Chat List Item Widget
 ///
-/// Displays a conversation in the chat list
+/// Displays a single chat conversation in the chat list
 class ChatListItemWidget extends StatelessWidget {
   final ChatModel chat;
-  final VoidCallback onTap;
 
-  const ChatListItemWidget({
-    super.key,
-    required this.chat,
-    required this.onTap,
-  });
+  const ChatListItemWidget({super.key, required this.chat});
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.shade200, width: 1),
-          ),
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: CircleAvatar(
+        radius: 28,
+        backgroundColor: const Color(0xFF6B4CE6),
+        backgroundImage: chat.otherUserProfilePic != null
+            ? NetworkImage(chat.otherUserProfilePic!)
+            : null,
+        child: chat.otherUserProfilePic == null
+            ? Text(
+                (chat.otherUserName ?? 'U')[0].toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            : null,
+      ),
+      title: Text(
+        chat.otherUserName ?? 'Unknown User',
+        style: TextStyle(
+          fontWeight: chat.unreadCount > 0 ? FontWeight.bold : FontWeight.w600,
+          fontSize: 16,
         ),
-        child: Row(
-          children: [
-            // Profile Picture
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey.shade300,
+      ),
+      subtitle: Text(
+        chat.lastMessage ?? 'No messages yet',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 14,
+          fontWeight: chat.unreadCount > 0
+              ? FontWeight.w500
+              : FontWeight.normal,
+        ),
+      ),
+      trailing: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (chat.lastMessageTime != null)
+            Text(
+              _formatTime(chat.lastMessageTime!),
+              style: TextStyle(
+                color: chat.unreadCount > 0
+                    ? const Color(0xFF6B4CE6)
+                    : Colors.grey.shade500,
+                fontSize: 12,
+                fontWeight: chat.unreadCount > 0
+                    ? FontWeight.bold
+                    : FontWeight.normal,
               ),
-              child: chat.otherUserProfilePic != null
-                  ? ClipOval(
-                      child: Image.network(
-                        chat.otherUserProfilePic!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.person,
-                            size: 32,
-                            color: Colors.grey.shade600,
-                          );
-                        },
-                      ),
-                    )
-                  : Icon(Icons.person, size: 32, color: Colors.grey.shade600),
             ),
-            const SizedBox(width: 12),
-
-            // Chat Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Username
-                      Expanded(
-                        child: Text(
-                          chat.displayName,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      // Time
-                      if (chat.lastMessageAt != null)
-                        Text(
-                          chat.formattedTime,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Last Message
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          chat.lastMessage ?? 'No messages yet',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: chat.unreadCount > 0
-                                ? Colors.black87
-                                : Colors.grey.shade600,
-                            fontWeight: chat.unreadCount > 0
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-
-                      // Unread Badge
-                      if (chat.unreadCount > 0) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF6B4CE6),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            chat.unreadCount > 99
-                                ? '99+'
-                                : chat.unreadCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
+          if (chat.unreadCount > 0) ...[
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: const BoxDecoration(
+                color: Color(0xFF6B4CE6),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                chat.unreadCount > 9 ? '9+' : chat.unreadCount.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
-        ),
+        ],
       ),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ChatArenaPage(
+              conversationId: chat.conversationId,
+              otherUserId: chat.otherUserId,
+              otherUserName: chat.otherUserName,
+              otherUserProfilePic: chat.otherUserProfilePic,
+            ),
+          ),
+        );
+      },
     );
   }
 }

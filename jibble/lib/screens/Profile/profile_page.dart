@@ -3,13 +3,13 @@ import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../services/follow_service.dart';
 import '../../models/profile_model.dart';
+import 'settings_drawer.dart';
 import 'followers_list_page.dart';
 import 'following_list_page.dart';
-import 'settings_drawer.dart';
 
 /// Profile Page
 ///
-/// Displays the current user's profile information and provides logout functionality
+/// Displays the current user's profile
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -24,7 +24,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   ProfileModel? _profile;
   bool _isLoading = true;
-  String? _errorMessage;
   int _followerCount = 0;
   int _followingCount = 0;
 
@@ -37,7 +36,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadProfile() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -56,9 +54,26 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    try {
+      await _authService.signOut();
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error logging out: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -67,202 +82,174 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = _authService.currentUser;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Profile'),
+        backgroundColor: Colors.white,
         elevation: 0,
-        backgroundColor: Colors.blue.shade600,
-        foregroundColor: Colors.white,
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Color(0xFF6B4CE6),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF6B4CE6)),
         actions: [
           Builder(
             builder: (context) => IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
         ],
       ),
-      endDrawer: SettingsDrawer(
-        profile: _profile,
-        onLogout: () async {
-          try {
-            await _authService.signOut();
-            // Navigate to login page after successful logout
-            if (mounted) {
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/', (route) => false);
-            }
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Error logging out: $e'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        },
-      ),
+      endDrawer: SettingsDrawer(profile: _profile, onLogout: _handleLogout),
       body: _isLoading
-          ? Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.blue.shade600, Colors.blue.shade50],
-                  stops: const [0.0, 0.3],
-                ),
-              ),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6B4CE6)),
               ),
             )
-          : Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.blue.shade600, Colors.blue.shade50],
-                  stops: const [0.0, 0.3],
-                ),
-              ),
-              child: SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // User Avatar with Profile Picture
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: _profile?.profilePictureUrl != null
-                              ? ClipOval(
-                                  child: Image.network(
-                                    _profile!.profilePictureUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Icon(
-                                        Icons.person,
-                                        size: 60,
-                                        color: Colors.blue.shade600,
-                                      );
-                                    },
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: Colors.blue.shade600,
-                                ),
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  // Profile Picture
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
                         ),
-                        const SizedBox(height: 24),
-
-                        // Username
-                        if (_profile?.username != null) ...[
-                          Text(
-                            '@${_profile!.username}',
-                            style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-
-                        // User email - REMOVED
-                        const SizedBox(height: 24),
-
-                        // Follower/Following Stats
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _buildStatItem(
-                              'Followers',
-                              _followerCount.toString(),
-                              () {
-                                Navigator.of(context)
-                                    .push(
-                                      MaterialPageRoute(
-                                        builder: (context) => FollowersListPage(
-                                          userId: user!.id,
-                                          isOwnProfile: true,
-                                        ),
-                                      ),
-                                    )
-                                    .then((_) => _loadProfile());
-                              },
-                            ),
-                            const SizedBox(width: 32),
-                            _buildStatItem(
-                              'Following',
-                              _followingCount.toString(),
-                              () {
-                                Navigator.of(context)
-                                    .push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowingListPage(userId: user!.id),
-                                      ),
-                                    )
-                                    .then((_) => _loadProfile());
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 48),
-
-                        // Error message
-                        if (_errorMessage != null)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  color: Colors.red.shade700,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: TextStyle(
-                                      color: Colors.red.shade700,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                       ],
                     ),
+                    child: _profile?.profilePictureUrl != null
+                        ? ClipOval(
+                            child: Image.network(
+                              _profile!.profilePictureUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Color(0xFF6B4CE6),
+                                );
+                              },
+                            ),
+                          )
+                        : const Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Color(0xFF6B4CE6),
+                          ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+
+                  // Username
+                  if (_profile?.username != null) ...[
+                    Text(
+                      '@${_profile!.username}',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6B4CE6),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  // Follower/Following Stats
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildStatItem(
+                        'Followers',
+                        _followerCount.toString(),
+                        () {
+                          if (user != null) {
+                            Navigator.of(context)
+                                .push(
+                                  MaterialPageRoute(
+                                    builder: (context) => FollowersListPage(
+                                      userId: user.id,
+                                      isOwnProfile: true,
+                                    ),
+                                  ),
+                                )
+                                .then((_) => _loadProfile());
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 32),
+                      _buildStatItem(
+                        'Following',
+                        _followingCount.toString(),
+                        () {
+                          if (user != null) {
+                            Navigator.of(context)
+                                .push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FollowingListPage(userId: user.id),
+                                  ),
+                                )
+                                .then((_) => _loadProfile());
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Profile info card
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Profile Information',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // College
+                          if (_profile?.collegeName != null) ...[
+                            _buildInfoRow(
+                              Icons.school_outlined,
+                              'College',
+                              _profile!.collegeName!,
+                            ),
+                            const Divider(height: 24),
+                          ],
+
+                          // Date of Birth
+                          if (_profile?.dateOfBirth != null) ...[
+                            _buildInfoRow(
+                              Icons.cake_outlined,
+                              'Date of Birth',
+                              _formatDate(_profile!.dateOfBirth!),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
     );
@@ -278,19 +265,53 @@ class _ProfilePageState extends State<ProfilePage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color(0xFF6B4CE6),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withValues(alpha: 0.8),
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFF6B4CE6), size: 24),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
