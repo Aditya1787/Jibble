@@ -4,6 +4,8 @@ import 'package:flutter/scheduler.dart';
 import '../../services/auth_service.dart';
 import '../../services/chat_service.dart';
 import '../../models/message_model.dart';
+import '../Profile/user_profile_page.dart';
+import '../Profile/fullscreen_photo_page.dart';
 
 /// Chat Arena Page
 ///
@@ -105,6 +107,28 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
     });
   }
 
+  // ── Navigation helpers ─────────────────────────────────────────────────────
+
+  void _openOtherProfile() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => UserProfilePage(userId: widget.otherUserId),
+      ),
+    );
+  }
+
+  void _openOtherPhoto() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FullScreenPhotoPage(
+          imageUrl: widget.otherUserProfilePic,
+          heroTag: 'avatar_arena_${widget.otherUserId}',
+          displayName: widget.otherUserName ?? 'User',
+        ),
+      ),
+    );
+  }
+
   Future<void> _sendMessage() async {
     final content = _messageController.text.trim();
     if (content.isEmpty || _isSending) return;
@@ -143,39 +167,55 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
         elevation: 0,
         foregroundColor: Colors.black87,
         titleSpacing: 0,
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: _primaryColor.withValues(alpha: 0.15),
-              backgroundImage: widget.otherUserProfilePic != null
-                  ? NetworkImage(widget.otherUserProfilePic!)
-                  : null,
-              child: widget.otherUserProfilePic == null
-                  ? Text(
-                      (widget.otherUserName ?? 'U')[0].toUpperCase(),
-                      style: const TextStyle(
-                        color: _primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.otherUserName ?? 'Chat',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+        title: GestureDetector(
+          onTap: _openOtherProfile,
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            children: [
+              // Avatar → view photo
+              GestureDetector(
+                onTap: _openOtherPhoto,
+                child: Hero(
+                  tag: 'avatar_arena_${widget.otherUserId}',
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: _primaryColor.withValues(alpha: 0.15),
+                    backgroundImage: widget.otherUserProfilePic != null
+                        ? NetworkImage(widget.otherUserProfilePic!)
+                        : null,
+                    child: widget.otherUserProfilePic == null
+                        ? Text(
+                            (widget.otherUserName ?? 'U')[0].toUpperCase(),
+                            style: const TextStyle(
+                              color: _primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : null,
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(width: 12),
+              // Name → view profile
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.otherUserName ?? 'Chat',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  Text(
+                    'Tap to view profile',
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(

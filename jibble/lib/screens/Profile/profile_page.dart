@@ -383,8 +383,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
 }

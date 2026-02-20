@@ -3,6 +3,7 @@ import '../services/auth_service.dart';
 import '../services/profile_service.dart';
 import '../models/profile_model.dart';
 import 'Chat/chat_list_page.dart';
+import 'Circle/circle_page.dart';
 
 /// Main Home Page with Instagram-like UI
 ///
@@ -227,11 +228,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.zero,
                 children: [
                   _buildDrawerItem(
+                    icon: Icons.diversity_3_outlined,
+                    title: 'Circle',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const CirclePage()),
+                      );
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.feed_outlined,
                     title: 'Category Feed',
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Navigate to category feed
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
