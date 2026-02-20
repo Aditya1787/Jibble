@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jibble · social fragments by Aditya</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0a0c0f;
+            color: #eef3fc;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* dark fragmented background (same vibe) */
+        .fragmented-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 40% 30%, #1f2b40 0%, #0a0e16 90%);
+            z-index: -2;
+        }
+
+        .fragmented-bg::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(55deg, rgba(80, 130, 240, 0.07) 1px, transparent 1px),
+                linear-gradient(145deg, rgba(110, 150, 255, 0.05) 1px, transparent 1px);
+            background-size: 80px 80px, 100px 100px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 4rem;
+            position: relative;
+        }
+
+        /* floating particles */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        .particle {
+            position: absolute;
+            width: 5px; height: 5px;
+            background: rgba(150, 190, 255, 0.25);
+            border-radius: 50%;
+            box-shadow: 0 0 14px #638aff;
+            animation: float 22s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-130vh) translateX(12vw); opacity: 0; }
+        }
+
+        /* header / top bar */
+        .top-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(16, 22, 34, 0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(90, 140, 250, 0.3);
+            border-radius: 60px;
+            padding: 0.8rem 1.8rem 0.8rem 2.2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 22px 44px -22px #0b1425;
+        }
+
+        .logo h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c0dbff, #efdbff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .logo i {
+            color: #7da2ff;
+            margin-right: 8px;
+            filter: drop-shadow(0 0 8px #4264c7);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            color: #ccdaff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 500;
+            transition: 0.2s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 4px;
+        }
+        .nav-links a:hover {
+            border-bottom-color: #6e96ff;
+            color: white;
+        }
+
+        /* founder drawer toggle button */
+        .drawer-toggle {
+            background: #202c44;
+            border: 1.5px solid #4a6cb0;
+            border-radius: 40px;
+            padding: 0.5rem 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e5edff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .drawer-toggle i {
+            font-size: 1.5rem;
+            color: #90b0ff;
+        }
+        .drawer-toggle:hover {
+            background: #2e3f64;
+            border-color: #7d9ff5;
+            transform: scale(1.02);
+        }
+
+        /* founder drawer (off-canvas) */
+        .founder-drawer {
+            position: fixed;
+            top: 0;
+            right: -480px;
+            width: 420px;
+            max-width: 90vw;
+            height: 100vh;
+            background: rgba(12, 18, 30, 0.97);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-left: 2px solid #3e5f9e;
+            box-shadow: -15px 0 45px #00000080;
+            padding: 2.5rem 2rem;
+            transition: right 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            color: #e7ecff;
+        }
+        .founder-drawer.open {
+            right: 0;
+        }
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .close-drawer {
+            position: absolute;
+            top: 25px; right: 30px;
+            font-size: 2.2rem;
+            color: #b2c8ff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-drawer:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        .founder-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #5f85e5;
+            box-shadow: 0 20px 35px -8px #0f1e42;
+            margin: 1.5rem auto 1.2rem;
+            display: block;
+            background: #2f3e62;
+        }
+        .founder-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(145deg, #ffffff, #b3cdff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .founder-title {
+            text-align: center;
+            color: #9db7f5;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+        .founder-bio {
+            background: #0d1423;
+            padding: 1.5rem;
+            border-radius: 28px;
+            border: 1px solid #364f7c;
+            margin: 2rem 0;
+            font-size: 1.05rem;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        .social-links a {
+            color: #b1caff;
+            font-size: 2rem;
+            transition: 0.2s;
+        }
+        .social-links a:hover {
+            color: white;
+            transform: translateY(-5px) scale(1.1);
+        }
+
+        /* main tagline */
+        .hero-tagline {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin: 2rem 0 3rem 1rem;
+            border-left: 6px solid #6086ff;
+            padding-left: 2rem;
+            color: #d3e0ff;
+        }
+
+        /* stat cards (bigger) */
+        .stat-blocks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: space-between;
+            margin: 3rem 0 4rem;
+        }
+        .stat-block {
+            flex: 1 1 180px;
+            background: rgba(18, 25, 40, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid #37507c;
+            border-radius: 50px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .stat-block:hover {
+            border-color: #6e94f0;
+            transform: translateY(-5px);
+        }
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #ffffff, #c0d6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        .stat-label {
+            color: #a6bef0;
+            font-size: 1.2rem;
+        }
+
+        /* main CTA */
+        .download-btn {
+            background: #17263f;
+            border: 2px solid #4f74cf;
+            border-radius: 60px;
+            padding: 1rem 3rem;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #f0f5ff;
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 40px -16px #10223f;
+            text-decoration: none;
+            margin: 1rem 0;
+        }
+        .download-btn i {
+            font-size: 2rem;
+            color: #9ebbff;
+        }
+        .download-btn:hover {
+            background: #1f3460;
+            border-color: #8aadff;
+            transform: scale(1.02) translateY(-3px);
+            box-shadow: 0 35px 50px -18px #1f3d77;
+        }
+
+        /* feature grid — more detailed */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin: 50px 0;
+        }
+
+        .feature-card {
+            background: rgba(18, 26, 42, 0.7);
+            backdrop-filter: blur(14px);
+            border: 1px solid #2f4780;
+            border-radius: 40px;
+            padding: 2.2rem 1.8rem;
+            transition: 0.25s;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.5s forwards;
+        }
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.15s; }
+        .feature-card:nth-child(3) { animation-delay: 0.2s; }
+        .feature-card:nth-child(4) { animation-delay: 0.25s; }
+        .feature-card:nth-child(5) { animation-delay: 0.3s; }
+        .feature-card:nth-child(6) { animation-delay: 0.35s; }
+        .feature-card:nth-child(7) { animation-delay: 0.4s; }
+        .feature-card:nth-child(8) { animation-delay: 0.45s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feature-card:hover {
+            border-color: #6f97ff;
+            background: rgba(28, 38, 60, 0.8);
+            transform: translateY(-8px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #b2c9ff, #ddc7ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+            color: #e5eeff;
+        }
+        .feature-desc {
+            color: #c0d1f5;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+        .feature-list {
+            list-style: none;
+            margin-top: 1.2rem;
+        }
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.7rem;
+            font-size: 0.98rem;
+            color: #d0defc;
+            border-bottom: 1px dashed #2d4166;
+            padding-bottom: 0.5rem;
+        }
+        .feature-list li i {
+            font-size: 0.9rem;
+            color: #7f9fff;
+            width: 22px;
+        }
+
+        .badge {
+            background: #1b2843;
+            border-radius: 40px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.8rem;
+            border: 1px solid #3f5e99;
+            color: #cadaff;
+            display: inline-block;
+            margin-right: 8px;
+            margin-top: 12px;
+        }
+
+        /* founder highlight in footer / extra */
+        .founder-note {
+            margin-top: 5rem;
+            padding: 2rem;
+            background: rgba(8, 15, 27, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 70px;
+            border: 1px solid #3a5285;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .mini-founder-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid #6c90f0;
+            object-fit: cover;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 3rem;
+            color: #7a93c9;
+        }
+    </style>
+</head>
+<body>
+    <div class="fragmented-bg"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Founder drawer & overlay -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="founder-drawer" id="founderDrawer">
+        <div class="close-drawer" id="closeDrawer"><i class="fas fa-times"></i></div>
+        <img src="main.jpeg" alt="Aditya Kumar Mishra" class="founder-img" onerror="this.src='https://via.placeholder.com/140?text=Aditya'">
+        <div class="founder-name">Aditya Kumar Mishra</div>
+        <div class="founder-title">Founder & CEO · Jibble</div>
+        <div class="founder-bio">
+            <i class="fas fa-quote-left" style="color: #6f96ff; opacity: 0.7;"></i> 
+            Building Jibble to deconstruct social media into intimate fragments. Previously built tools for communities, now focused on authentic connections. 
+            <br/><br/>
+            Aditya leads product & vision, with deep expertise in Flutter and decentralized social concepts.
+        </div>
+        <div class="social-links">
+            <a href="https://www.linkedin.com/in/adityakumishra/" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://github.com/aditya1787/" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://instagram.com/adityakmishra_17" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+            <span class="badge">#buildinpublic</span>
+            <span class="badge">ceo@jibble</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- top bar with founder drawer toggle -->
+        <div class="top-bar">
+            <div class="logo">
+                <i class="fas fa-cubes"></i> jibble
+            </div>
+            <div class="nav-links">
+                <a href="#">features</a>
+                <a href="#">roadmap</a>
+                <div class="drawer-toggle" id="openDrawerBtn">
+                    <i class="fas fa-user-astronaut"></i> founder
+                </div>
+            </div>
+        </div>
+
+        <!-- hero tagline -->
+        <div class="hero-tagline">
+            <i class="fas fa-sparkles" style="margin-right: 15px; color: #7b9eff;"></i> 
+            Jibble: fragments of you — circles, chats & raw connection. by Aditya.
+        </div>
+
+        <!-- stats row (improved) -->
+        <div class="stat-blocks">
+            <div class="stat-block"><span class="stat-number">v2.2.0</span> <div class="stat-label">latest version</div></div>
+            <div class="stat-block"><span class="stat-number">217k</span> <div class="stat-label">downloads</div></div>
+            <div class="stat-block"><span class="stat-number">89k</span> <div class="stat-label">daily act.</div></div>
+            <div class="stat-block"><span class="stat-number">4.8</span> <div class="stat-label">app rating</div></div>
+            <div class="stat-block"><span class="number">1.2M</span> <div class="stat-label">messages/d</div></div>
+        </div>
+
+        <!-- main download CTA -->
+        <div style="display: flex; justify-content: center;">
+            <a class="download-btn" href="https://drive.google.com/file/d/19rc5jKpvMQjJdzfNXvd_C_zKff2EUZLT/view?usp=sharing" target="_blank">
+                <i class="fas fa-download"></i> download jibble (drive)
+            </a>
+        </div>
+
+        <!-- extensive feature grid (8 feature cards, detailed) -->
+        <div class="feature-grid">
+            <!-- Circles deep -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-circle-nodes"></i></div>
+                <h3>Circles · private realms</h3>
+                <div class="feature-desc">Create exclusive circles with best friends, family. Circle members page, member tiles, and ephemeral updates.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> circle-only feed & posts</li>
+                    <li><i class="fas fa-check"></i> granular membership</li>
+                    <li><i class="fas fa-check"></i> circle_service + models</li>
+                </ul>
+                <span class="badge">privacy first</span>
+                <span class="badge">new: voice prompts</span>
+            </div>
+
+            <!-- Chat & group arena -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-comment-dots"></i></div>
+                <h3>Chat · DM & group</h3>
+                <div class="feature-desc">Rich messaging: group arena, group settings, message bubbles, chat list, and full media.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> group_arena + create group</li>
+                    <li><i class="fas fa-check"></i> read receipts + typing</li>
+                    <li><i class="fas fa-check"></i> chat_service / group_service</li>
+                </ul>
+                <span class="badge">e2e ready</span>
+            </div>
+
+            <!-- Profile + identity -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-id-card"></i></div>
+                <h3>Profile · your identity</h3>
+                <div class="feature-desc">Profile page, edit profile, account info, fullscreen photo, followers/following lists.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> user_profile + settings_drawer</li>
+                    <li><i class="fas fa-check"></i> fullscreen_photo_page</li>
+                    <li><i class="fas fa-check"></i> profile_service</li>
+                </ul>
+                <span class="badge">customizable</span>
+            </div>
+
+            <!-- Follow & search -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-user-plus"></i></div>
+                <h3>Follow & discover</h3>
+                <div class="feature-desc">Search page, user results, follow/unfollow with one tap. see who follows you.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> follow_button_widget</li>
+                    <li><i class="fas fa-check"></i> user_search_result + search_page</li>
+                    <li><i class="fas fa-check"></i> follow_service + user_search</li>
+                </ul>
+                <span class="badge">smart suggestions</span>
+            </div>
+
+            <!-- onboarding & auth -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Seamless onboarding</h3>
+                <div class="feature-desc">Login, register, logout. Onboarding steps: college, dob, profile picture, username.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> login_page / register_page</li>
+                    <li><i class="fas fa-check"></i> college, dob, profilepic, username</li>
+                    <li><i class="fas fa-check"></i> first_launch_service + auth_gate</li>
+                </ul>
+                <span class="badge">supabase</span>
+            </div>
+
+            <!-- home & navigation -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-house-flood"></i></div>
+                <h3>Home & foundation</h3>
+                <div class="feature-desc">Home page, splash screen, onboarding gate, cached images for speed.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> home_page + splash_screen</li>
+                    <li><i class="fas fa-check"></i> onboarding_gate, auth_gate</li>
+                    <li><i class="fas fa-check"></i> cached_image_widget</li>
+                </ul>
+                <span class="badge">flutter</span>
+            </div>
+
+            <!-- group messaging extras -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Group messaging pro</h3>
+                <div class="feature-desc">Group settings page, group_message_model, circle members integration.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> group_settings_page</li>
+                    <li><i class="fas fa-check"></i> group & circle member models</li>
+                    <li><i class="fas fa-check"></i> group_service + chat</li>
+                </ul>
+                <span class="badge">moderation tools</span>
+            </div>
+
+            <!-- additional founder / vision -->
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                <h3>Vision by Aditya</h3>
+                <div class="feature-desc">Founder-led development. Ethical social, no addictive algorithms. Open to community.</div>
+                <ul class="feature-list">
+                    <li><i class="fas fa-check"></i> @adityakumishra on LinkedIn</li>
+                    <li><i class="fas fa-check"></i> github.com/aditya1787</li>
+                    <li><i class="fas fa-check"></i> roadmap on instagram</li>
+                </ul>
+                <span class="badge">#founder mode</span>
+            </div>
+        </div>
+
+        <!-- Founder highlight (quick) -->
+        <div class="founder-note">
+            <img src="main.jpeg" alt="Aditya" class="mini-founder-img" onerror="this.src='https://via.placeholder.com/70?text=AM'">
+            <span style="font-size: 1.6rem; font-weight: 300;">built by <strong>Aditya Kumar Mishra</strong> · CEO</span>
+            <div style="display: flex; gap: 1.5rem;">
+                <a href="https://www.linkedin.com/in/adityakumishra/" target="_blank" style="color: #b2c9ff; font-size: 1.8rem;"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://github.com/aditya1787/" target="_blank" style="color: #b2c9ff; font-size: 1.8rem;"><i class="fab fa-github"></i></a>
+                <a href="https://instagram.com/adityakmishra_17" target="_blank" style="color: #b2c9ff; font-size: 1.8rem;"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+
+        <!-- final CTA -->
+        <div style="display: flex; flex-direction: column; align-items: center; margin: 4rem 0 2rem;">
+            <a class="download-btn" href="https://drive.google.com/file/d/19rc5jKpvMQjJdzfNXvd_C_zKff2EUZLT/view?usp=sharing" target="_blank" style="padding: 1.3rem 4rem;">
+                <i class="fas fa-download"></i> install jibble v2.2.0
+            </a>
+            <p style="margin-top: 1.5rem;">217k+ downloads · 4.8 stars · apk from drive</p>
+        </div>
+
+        <div class="footer-note">
+            <i class="fas fa-cubes" style="color: #6d94ff;"></i> jibble – fragments of you · ceo Aditya Kumar Mishra
+        </div>
+    </div>
+
+    <script>
+        // particles
+        (function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i=0; i<40; i++) {
+                let p = document.createElement('div');
+                p.classList.add('particle');
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 8 + 3) + 'px';
+                p.style.animationDelay = (Math.random() * 12) + 's';
+                p.style.animationDuration = (Math.random() * 12 + 16) + 's';
+                p.style.background = `rgba(${150+Math.random()*80}, ${170+Math.random()*60}, 255, 0.3)`;
+                container.appendChild(p);
+            }
+        })();
+
+        // drawer logic
+        const drawer = document.getElementById('founderDrawer');
+        const overlay = document.getElementById('drawerOverlay');
+        const openBtn = document.getElementById('openDrawerBtn');
+        const closeBtn = document.getElementById('closeDrawer');
+
+        function openDrawer() {
+            drawer.classList.add('open');
+            overlay.classList.add('active');
+        }
+        function closeDrawer() {
+            drawer.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        openBtn.addEventListener('click', openDrawer);
+        closeBtn.addEventListener('click', closeDrawer);
+        overlay.addEventListener('click', closeDrawer);
+
+        // fallback for founder image if main.jpeg missing — show monogram
+        const founderImg = document.querySelector('.founder-img');
+        founderImg.onerror = function() {
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%232e4177"><circle cx="50" cy="50" r="45" /><text x="50" y="70" font-size="50" text-anchor="middle" fill="%23ffffff" font-family="Inter">AM</text></svg>';
+        };
+        const miniImg = document.querySelector('.mini-founder-img');
+        miniImg.onerror = function() {
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%232e4177"><circle cx="50" cy="50" r="45" /><text x="50" y="70" font-size="50" text-anchor="middle" fill="%23ffffff" font-family="Inter">AM</text></svg>';
+        };
+    </script>
+</body>
+</html>
