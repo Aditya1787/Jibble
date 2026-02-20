@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/post_service.dart';
+import '../../services/auth_service.dart';
+import '../../models/profile_model.dart';
+import '../../services/profile_service.dart';
 
 class CreatePostPage extends StatefulWidget {
   final bool isCirclePost;
@@ -20,8 +23,38 @@ class CreatePostPage extends StatefulWidget {
 class _CreatePostPageState extends State<CreatePostPage> {
   final _captionController = TextEditingController();
   final _postService = PostService();
+  final _authService = AuthService();
+  final _profileService = ProfileService();
+
+  ProfileModel? _profile;
   File? _imageFile;
   bool _isLoading = false;
+  bool _isProfileLoading = true;
+
+  static const _primaryColor = Color(0xFF6B4CE6);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        final profile = await _profileService.getProfile(user.id);
+        if (mounted) {
+          setState(() {
+            _profile = profile;
+            _isProfileLoading = false;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isProfileLoading = false);
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -101,119 +134,255 @@ class _CreatePostPageState extends State<CreatePostPage> {
     if (widget.postType == 'confession') title = 'Anonymous Confession';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         actions: [
-          _isLoading
-              ? const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Center(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: _isLoading
+                ? const Center(
                     child: SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _primaryColor,
+                      ),
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [_primaryColor, Color(0xFF9D7CE8)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _submitPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'Post',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
-                )
-              : TextButton(
-                  onPressed: _submitPost,
-                  child: const Text(
-                    'Post',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             if (widget.postType == 'confession')
               Container(
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.5),
-                  ),
-                ),
-                child: const Row(
+                padding: const EdgeInsets.all(16),
+                color: Colors.orange.withValues(alpha: 0.1),
+                child: Row(
                   children: [
-                    Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Expanded(
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.privacy_tip_outlined,
+                        color: Colors.orange,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
                       child: Text(
-                        'Confessions are strictly anonymous. Your identity will not be shared.',
+                        'Your identity is completely hidden. Feel free to share openly.',
+                        style: TextStyle(color: Colors.black87, fontSize: 13),
                       ),
                     ),
                   ],
                 ),
               ),
 
-            TextField(
-              controller: _captionController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                hintText: 'What do you want to share?',
-                border: InputBorder.none,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.postType != 'confession')
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: _isProfileLoading
+                          ? const CircleAvatar(
+                              backgroundColor: Colors.grey,
+                              radius: 20,
+                            )
+                          : CircleAvatar(
+                              radius: 20,
+                              backgroundImage:
+                                  _profile?.profilePictureUrl != null
+                                  ? NetworkImage(_profile!.profilePictureUrl!)
+                                  : null,
+                              child: _profile?.profilePictureUrl == null
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                    )
+                                  : null,
+                              backgroundColor: _primaryColor.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.grey[300],
+                        child: Icon(Icons.masks, color: Colors.grey[600]),
+                      ),
+                    ),
+
+                  Expanded(
+                    child: TextField(
+                      controller: _captionController,
+                      maxLines: null, // Auto-expand
+                      minLines: 4,
+                      textInputAction: TextInputAction.newline,
+                      style: const TextStyle(fontSize: 16),
+                      decoration: InputDecoration(
+                        hintText: widget.postType == 'confession'
+                            ? 'What\'s your confession?'
+                            : widget.postType == 'event'
+                            ? 'Describe your event...'
+                            : 'What\'s on your mind?',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const Divider(),
 
-            if (widget.postType != 'confession') ...[
-              if (_imageFile != null)
-                Stack(
-                  children: [
-                    Image.file(
-                      _imageFile!,
-                      height: 300,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.black54,
-                        ),
-                        onPressed: () => setState(() => _imageFile = null),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                InkWell(
-                  onTap: _pickImage,
-                  child: Container(
-                    height: 200,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.add_photo_alternate_outlined,
-                          size: 48,
-                          color: Colors.grey[500],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Add Photo (Max 5MB)',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
+            if (widget.postType != 'confession')
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
                 ),
-            ],
+                child: _imageFile != null
+                    ? Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.file(
+                              _imageFile!,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _imageFile = null),
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.6),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          height: 120,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF4F6FB),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.grey.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.image_outlined,
+                                  color: _primaryColor,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Add a photo',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Max size 5MB',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+
+            const SizedBox(height: 32),
           ],
         ),
       ),
