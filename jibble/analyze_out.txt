@@ -1,0 +1,31 @@
+﻿Analyzing 4 items...                                            
+
+   info - Unnecessary use of multiple underscores - lib\screens\profile\edit_profile_page.dart:287:51 - unnecessary_underscores
+   info - The local variable '_e' starts with an underscore - lib\screens\profile\edit_profile_page.dart:287:55 - no_leading_underscores_for_local_identifiers
+  error - The named parameter 'onFollowChanged' isn't defined - lib\screens\profile\following_list_page.dart:138:21 - undefined_named_parameter
+   info - Unnecessary use of multiple underscores - lib\screens\profile\profile_page.dart:184:45 - unnecessary_underscores
+   info - The local variable '_e' starts with an underscore - lib\screens\profile\profile_page.dart:184:49 - no_leading_underscores_for_local_identifiers
+warning - The declaration '_formatDate' isn't referenced - lib\screens\profile\profile_page.dart:387:10 - unused_element
+warning - Unused import: '../Chat/chat_arena_page.dart' - lib\screens\profile\user_profile_page.dart:9:8 - unused_import
+   info - Unnecessary use of multiple underscores - lib\screens\profile\user_profile_page.dart:168:41 - unnecessary_underscores
+   info - The local variable '_e' starts with an underscore - lib\screens\profile\user_profile_page.dart:168:45 - no_leading_underscores_for_local_identifiers
+  error - The method 'ChatArenaPage' isn't defined for the type '_UserProfilePageState' - lib\screens\profile\user_profile_page.dart:283:43 - undefined_method
+
+flutter : 10 issues found. 
+(ran in 1.3s)
+At line:1 char:1
++ flutter analyze 
+lib/screens/Profile lib/scre
+ens/Follow/follow_button_ 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (10 is  
+  sues found. (ran in 1.3   
+ s):String) [], RemoteEx    
+ception
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 

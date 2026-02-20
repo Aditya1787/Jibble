@@ -12,6 +12,7 @@ class UserListItemWidget extends StatelessWidget {
   final bool showFollowButton;
   final bool showRemoveButton;
   final VoidCallback? onRemoved;
+  final VoidCallback? onFollowChanged;
 
   const UserListItemWidget({
     super.key,
@@ -19,6 +20,7 @@ class UserListItemWidget extends StatelessWidget {
     this.showFollowButton = false,
     this.showRemoveButton = false,
     this.onRemoved,
+    this.onFollowChanged,
   });
 
   Future<void> _removeFollower(BuildContext context) async {
@@ -95,7 +97,11 @@ class UserListItemWidget extends StatelessWidget {
             )
           : null,
       trailing: showFollowButton
-          ? FollowButtonWidget(userId: user.id, initialIsFollowing: false)
+          ? FollowButtonWidget(
+              userId: user.id,
+              initialIsFollowing: false,
+              onFollowChanged: onFollowChanged,
+            )
           : showRemoveButton
           ? IconButton(
               icon: const Icon(Icons.person_remove, color: Colors.red),

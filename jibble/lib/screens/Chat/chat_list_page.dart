@@ -37,7 +37,7 @@ class _ChatListPageState extends State<ChatListPage> {
     try {
       final user = _authService.currentUser;
       if (user != null) {
-        final chats = await _chatService.getUserChats(user.id);
+        final chats = await _chatService.getConversations();
         setState(() {
           _chats = chats;
           _isLoading = false;

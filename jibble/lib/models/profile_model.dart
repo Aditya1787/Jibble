@@ -5,6 +5,8 @@ class ProfileModel {
   final String id;
   final String? email;
   final String username;
+  final String? name;
+  final String? bio;
   final DateTime? dateOfBirth;
   final String? collegeName;
   final String? profilePictureUrl;
@@ -16,6 +18,8 @@ class ProfileModel {
     required this.id,
     this.email,
     required this.username,
+    this.name,
+    this.bio,
     this.dateOfBirth,
     this.collegeName,
     this.profilePictureUrl,
@@ -30,6 +34,8 @@ class ProfileModel {
       id: json['id'] as String,
       email: json['email'] as String?,
       username: json['username'] as String,
+      name: json['name'] as String?,
+      bio: json['bio'] as String?,
       dateOfBirth: json['date_of_birth'] != null
           ? DateTime.parse(json['date_of_birth'] as String)
           : null,
@@ -47,6 +53,8 @@ class ProfileModel {
       'id': id,
       'email': email,
       'username': username,
+      'name': name,
+      'bio': bio,
       'date_of_birth': dateOfBirth?.toIso8601String(),
       'college_name': collegeName,
       'profile_picture_url': profilePictureUrl,
@@ -61,6 +69,8 @@ class ProfileModel {
     String? id,
     String? email,
     String? username,
+    String? name,
+    String? bio,
     DateTime? dateOfBirth,
     String? collegeName,
     String? profilePictureUrl,
@@ -72,6 +82,8 @@ class ProfileModel {
       id: id ?? this.id,
       email: email ?? this.email,
       username: username ?? this.username,
+      name: name ?? this.name,
+      bio: bio ?? this.bio,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       collegeName: collegeName ?? this.collegeName,
       profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,

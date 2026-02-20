@@ -3,13 +3,14 @@ import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../services/follow_service.dart';
 import '../../models/profile_model.dart';
-import 'settings_drawer.dart';
 import 'followers_list_page.dart';
 import 'following_list_page.dart';
+import 'settings_drawer.dart';
+import 'edit_profile_page.dart';
 
 /// Profile Page
 ///
-/// Displays the current user's profile
+/// Displays the current user's profile information
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -22,8 +23,11 @@ class _ProfilePageState extends State<ProfilePage> {
   final _profileService = ProfileService();
   final _followService = FollowService();
 
+  static const _primaryColor = Color(0xFF3B6FE8);
+
   ProfileModel? _profile;
   bool _isLoading = true;
+  String? _errorMessage;
   int _followerCount = 0;
   int _followingCount = 0;
 
@@ -36,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadProfile() async {
     setState(() {
       _isLoading = true;
+      _errorMessage = null;
     });
 
     try {
@@ -45,17 +50,22 @@ class _ProfilePageState extends State<ProfilePage> {
         final followerCount = await _followService.getFollowerCount(user.id);
         final followingCount = await _followService.getFollowingCount(user.id);
 
-        setState(() {
-          _profile = profile;
-          _followerCount = followerCount;
-          _followingCount = followingCount;
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _profile = profile;
+            _followerCount = followerCount;
+            _followingCount = followingCount;
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      }
     }
   }
 
@@ -79,235 +89,298 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = _authService.currentUser;
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF4F6FB),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            color: Color(0xFF6B4CE6),
-            fontWeight: FontWeight.bold,
-          ),
+        title: Text(
+          _profile?.username != null ? '@${_profile!.username}' : 'Profile',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
-        iconTheme: const IconThemeData(color: Color(0xFF6B4CE6)),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
         actions: [
           Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            builder: (ctx) => IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
             ),
           ),
         ],
       ),
-      endDrawer: SettingsDrawer(profile: _profile, onLogout: _handleLogout),
+      endDrawer: SettingsDrawer(
+        profile: _profile,
+        onLogout: _handleLogout,
+        onProfileUpdated: _loadProfile,
+      ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6B4CE6)),
+                valueColor: AlwaysStoppedAnimation<Color>(_primaryColor),
               ),
             )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Profile Picture
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: _profile?.profilePictureUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              _profile!.profilePictureUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: Color(0xFF6B4CE6),
-                                );
-                              },
-                            ),
-                          )
-                        : const Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Color(0xFF6B4CE6),
-                          ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Username
-                  if (_profile?.username != null) ...[
-                    Text(
-                      '@${_profile!.username}',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF6B4CE6),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+          : RefreshIndicator(
+              onRefresh: _loadProfile,
+              color: _primaryColor,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    if (_profile?.bio != null && _profile!.bio!.isNotEmpty)
+                      _buildBioCard(),
+                    if (_errorMessage != null) _buildError(),
+                    const SizedBox(height: 30),
                   ],
-
-                  // Follower/Following Stats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildStatItem(
-                        'Followers',
-                        _followerCount.toString(),
-                        () {
-                          if (user != null) {
-                            Navigator.of(context)
-                                .push(
-                                  MaterialPageRoute(
-                                    builder: (context) => FollowersListPage(
-                                      userId: user.id,
-                                      isOwnProfile: true,
-                                    ),
-                                  ),
-                                )
-                                .then((_) => _loadProfile());
-                          }
-                        },
-                      ),
-                      const SizedBox(width: 32),
-                      _buildStatItem(
-                        'Following',
-                        _followingCount.toString(),
-                        () {
-                          if (user != null) {
-                            Navigator.of(context)
-                                .push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        FollowingListPage(userId: user.id),
-                                  ),
-                                )
-                                .then((_) => _loadProfile());
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Profile info card
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Profile Information',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // College
-                          if (_profile?.collegeName != null) ...[
-                            _buildInfoRow(
-                              Icons.school_outlined,
-                              'College',
-                              _profile!.collegeName!,
-                            ),
-                            const Divider(height: 24),
-                          ],
-
-                          // Date of Birth
-                          if (_profile?.dateOfBirth != null) ...[
-                            _buildInfoRow(
-                              Icons.cake_outlined,
-                              'Date of Birth',
-                              _formatDate(_profile!.dateOfBirth!),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, VoidCallback onTap) {
+  // ── Header section ───────────────────────────────────────────────────────────
+
+  Widget _buildHeader() {
+    final user = _authService.currentUser;
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+      child: Column(
+        children: [
+          // Avatar
+          Stack(
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      _primaryColor.withValues(alpha: 0.15),
+                      _primaryColor.withValues(alpha: 0.05),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: _primaryColor.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
+                ),
+                child: ClipOval(
+                  child: _profile?.profilePictureUrl != null
+                      ? Image.network(
+                          _profile!.profilePictureUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, _e) => Icon(
+                            Icons.person,
+                            size: 50,
+                            color: _primaryColor,
+                          ),
+                        )
+                      : Icon(Icons.person, size: 50, color: _primaryColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Display name
+          if (_profile?.name != null && _profile!.name!.isNotEmpty)
+            Text(
+              _profile!.name!,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+
+          // Username
+          if (_profile?.username != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              '@${_profile!.username}',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 20),
+
+          // Stats row
+          IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStatItem('Followers', _followerCount, () {
+                  if (user != null) {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => FollowersListPage(
+                              userId: user.id,
+                              isOwnProfile: true,
+                            ),
+                          ),
+                        )
+                        .then((_) => _loadProfile());
+                  }
+                }),
+                VerticalDivider(
+                  color: Colors.grey.shade300,
+                  width: 40,
+                  thickness: 1,
+                ),
+                _buildStatItem('Following', _followingCount, () {
+                  if (user != null) {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => FollowingListPage(userId: user.id),
+                          ),
+                        )
+                        .then((_) => _loadProfile());
+                  }
+                }),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Edit Profile button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                if (_profile == null) return;
+                Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(
+                        builder: (_) => EditProfilePage(profile: _profile!),
+                      ),
+                    )
+                    .then((updated) {
+                      if (updated != null) _loadProfile();
+                    });
+              },
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              label: const Text(
+                'Edit Profile',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _primaryColor,
+                side: BorderSide(color: _primaryColor.withValues(alpha: 0.5)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Bio card ─────────────────────────────────────────────────────────────────
+
+  Widget _buildBioCard() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.notes_rounded, color: _primaryColor, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _profile!.bio!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Error ─────────────────────────────────────────────────────────────────────
+
+  Widget _buildError() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _errorMessage!,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Stat item ─────────────────────────────────────────────────────────────────
+
+  Widget _buildStatItem(String label, int value, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
           Text(
-            value,
+            value.toString(),
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF6B4CE6),
+              color: _primaryColor,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFF6B4CE6), size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

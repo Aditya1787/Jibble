@@ -3,7 +3,8 @@ import '../../services/follow_service.dart';
 
 /// Follow Button Widget
 ///
-/// Reusable button for following/unfollowing users
+/// Reusable compact button for following/unfollowing users.
+/// Sizes to its content — wrap in Expanded to fill a Row slot.
 class FollowButtonWidget extends StatefulWidget {
   final String userId;
   final bool initialIsFollowing;
@@ -32,9 +33,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
   }
 
   Future<void> _toggleFollow() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       if (_isFollowing) {
@@ -43,10 +42,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         await _followService.followUser(widget.userId);
       }
 
-      setState(() {
-        _isFollowing = !_isFollowing;
-      });
-
+      setState(() => _isFollowing = !_isFollowing);
       widget.onFollowChanged?.call();
     } catch (e) {
       if (mounted) {
@@ -55,11 +51,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -69,11 +61,13 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       onPressed: _isLoading ? null : _toggleFollow,
       style: ElevatedButton.styleFrom(
         backgroundColor: _isFollowing
-            ? Colors.grey.shade300
-            : const Color(0xFF6B4CE6),
-        foregroundColor: _isFollowing ? Colors.black : Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ? Colors.grey.shade200
+            : const Color(0xFF3B6FE8),
+        foregroundColor: _isFollowing ? Colors.black87 : Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 0,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: _isLoading
           ? SizedBox(
@@ -82,13 +76,13 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  _isFollowing ? Colors.black : Colors.white,
+                  _isFollowing ? Colors.black87 : Colors.white,
                 ),
               ),
             )
           : Text(
               _isFollowing ? 'Following' : 'Follow',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
     );
   }

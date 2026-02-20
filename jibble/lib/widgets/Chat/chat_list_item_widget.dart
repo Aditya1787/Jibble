@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/chat_model.dart';
-import '../Chat/chat_arena_page.dart';
+import '../../screens/Chat/chat_arena_page.dart';
 
 /// Chat List Item Widget
 ///
@@ -31,7 +31,7 @@ class ChatListItemWidget extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       leading: CircleAvatar(
         radius: 28,
-        backgroundColor: const Color(0xFF6B4CE6),
+        backgroundColor: const Color(0xFF3B6FE8),
         backgroundImage: chat.otherUserProfilePic != null
             ? NetworkImage(chat.otherUserProfilePic!)
             : null,
@@ -69,12 +69,12 @@ class ChatListItemWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (chat.lastMessageTime != null)
+          if (chat.lastMessageAt != null)
             Text(
-              _formatTime(chat.lastMessageTime!),
+              _formatTime(chat.lastMessageAt!),
               style: TextStyle(
                 color: chat.unreadCount > 0
-                    ? const Color(0xFF6B4CE6)
+                    ? const Color(0xFF3B6FE8)
                     : Colors.grey.shade500,
                 fontSize: 12,
                 fontWeight: chat.unreadCount > 0
@@ -87,7 +87,7 @@ class ChatListItemWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: const BoxDecoration(
-                color: Color(0xFF6B4CE6),
+                color: Color(0xFF3B6FE8),
                 shape: BoxShape.circle,
               ),
               child: Text(
@@ -105,8 +105,8 @@ class ChatListItemWidget extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => ChatArenaPage(
-              conversationId: chat.conversationId,
+            builder: (_) => ChatArenaPage(
+              conversationId: chat.id,
               otherUserId: chat.otherUserId,
               otherUserName: chat.otherUserName,
               otherUserProfilePic: chat.otherUserProfilePic,

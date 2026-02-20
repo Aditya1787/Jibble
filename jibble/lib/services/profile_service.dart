@@ -36,6 +36,8 @@ class ProfileService {
   Future<ProfileModel> createProfile({
     required String userId,
     required String username,
+    String? name,
+    String? bio,
     DateTime? dateOfBirth,
     String? collegeName,
     String? profilePictureUrl,
@@ -46,6 +48,8 @@ class ProfileService {
       final profileData = {
         'id': userId,
         'username': username,
+        'name': name,
+        'bio': bio,
         'date_of_birth': dateOfBirth?.toIso8601String(),
         'college_name': collegeName,
         'profile_picture_url': profilePictureUrl,
@@ -63,7 +67,6 @@ class ProfileService {
       return ProfileModel.fromJson(response);
     } on PostgrestException catch (e) {
       if (e.code == '23505') {
-        // Unique constraint violation
         throw 'Username already taken';
       }
       throw 'Failed to create profile: ${e.message}';
@@ -76,6 +79,8 @@ class ProfileService {
   Future<ProfileModel> updateProfile({
     required String userId,
     String? username,
+    String? name,
+    String? bio,
     DateTime? dateOfBirth,
     String? collegeName,
     String? profilePictureUrl,
@@ -87,6 +92,9 @@ class ProfileService {
       };
 
       if (username != null) updateData['username'] = username;
+      if (name != null) updateData['name'] = name;
+      // Allow clearing bio with empty string
+      if (bio != null) updateData['bio'] = bio.isEmpty ? null : bio;
       if (dateOfBirth != null) {
         updateData['date_of_birth'] = dateOfBirth.toIso8601String();
       }
