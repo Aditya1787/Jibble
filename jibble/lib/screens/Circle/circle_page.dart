@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../services/circle_service.dart';
 import 'circle_members_page.dart';
+import 'circle_feed_page.dart';
+import 'placeholder_page.dart';
 
 /// Circle Page — Landing
 ///
@@ -325,16 +327,35 @@ class _CirclePageState extends State<CirclePage> {
   Widget _buildFilterCard(_FilterTab f) {
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Circle ${f.label} coming soon!'),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: f.color,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        if (_collegeName == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Please update your profile with a college name first.',
+              ),
             ),
-          ),
-        );
+          );
+          return;
+        }
+
+        Widget destination;
+        if (f.label == 'Events') {
+          destination = const CircleFeedPage(
+            title: 'Events',
+            postType: 'event',
+          );
+        } else if (f.label == 'Confessions') {
+          destination = const CircleFeedPage(
+            title: 'Confessions',
+            postType: 'confession',
+          );
+        } else {
+          destination = PlaceholderPage(title: f.label);
+        }
+
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => destination));
       },
       child: Container(
         decoration: BoxDecoration(

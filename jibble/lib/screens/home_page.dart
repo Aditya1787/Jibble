@@ -4,6 +4,9 @@ import '../services/profile_service.dart';
 import '../models/profile_model.dart';
 import 'Chat/chat_list_page.dart';
 import 'Circle/circle_page.dart';
+import '../services/post_service.dart';
+import '../models/post_model.dart';
+import '../widgets/post_card_widget.dart';
 
 /// Main Home Page with Instagram-like UI
 ///
@@ -21,15 +24,34 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final _authService = AuthService();
   final _profileService = ProfileService();
+  final _postService = PostService();
 
   ProfileModel? _profile;
+  List<PostModel> _posts = [];
   bool _isLoading = true;
+  bool _isLoadingPosts = true;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    _loadPosts();
+  }
+
+  Future<void> _loadPosts() async {
+    setState(() => _isLoadingPosts = true);
+    try {
+      final posts = await _postService.fetchHomeFeed();
+      if (mounted) {
+        setState(() {
+          _posts = posts;
+          _isLoadingPosts = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingPosts = false);
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -66,10 +88,12 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.of(context).pushNamed('/search');
         break;
       case 2: // Upload
-        // TODO: Navigate to upload page
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Upload feature coming soon!')),
-        );
+        Navigator.of(context).pushNamed('/create-post').then((_) {
+          // Refresh feed if a post was created
+          _loadPosts();
+        });
+        // Stay on current tab visually (or change if preferred)
+        setState(() => _selectedIndex = 0);
         break;
       case 3: // Reels
         // TODO: Navigate to reels page
@@ -375,51 +399,36 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _buildPostGrid() {
-    // Sample post data - replace with actual data from backend
-    final List<String> posts = List.generate(
-      20,
-      (index) => 'https://picsum.photos/400/400?random=$index',
-    );
+    if (_isLoadingPosts) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(2),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
+    if (_posts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.feed_outlined, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'No posts yet.\nBe the first to share something!',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadPosts,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _posts.length,
+        itemBuilder: (context, index) {
+          return PostCardWidget(post: _posts[index], onPostDeleted: _loadPosts);
+        },
       ),
-      itemCount: posts.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            // TODO: Navigate to post detail
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Post ${index + 1} clicked')),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              image: DecorationImage(
-                image: NetworkImage(posts[index]),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.1),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 

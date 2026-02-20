@@ -7,6 +7,9 @@ import 'followers_list_page.dart';
 import 'following_list_page.dart';
 import 'settings_drawer.dart';
 import 'edit_profile_page.dart';
+import '../../services/post_service.dart';
+import '../../models/post_model.dart';
+import '../../widgets/post_card_widget.dart';
 
 /// Profile Page
 ///
@@ -22,10 +25,12 @@ class _ProfilePageState extends State<ProfilePage> {
   final _authService = AuthService();
   final _profileService = ProfileService();
   final _followService = FollowService();
+  final _postService = PostService();
 
   static const _primaryColor = Color(0xFF3B6FE8);
 
   ProfileModel? _profile;
+  List<PostModel> _userPosts = [];
   bool _isLoading = true;
   String? _errorMessage;
   int _followerCount = 0;
@@ -49,10 +54,12 @@ class _ProfilePageState extends State<ProfilePage> {
         final profile = await _profileService.getProfile(user.id);
         final followerCount = await _followService.getFollowerCount(user.id);
         final followingCount = await _followService.getFollowingCount(user.id);
+        final posts = await _postService.fetchUserPosts(user.id);
 
         if (mounted) {
           setState(() {
             _profile = profile;
+            _userPosts = posts;
             _followerCount = followerCount;
             _followingCount = followingCount;
             _isLoading = false;
@@ -130,6 +137,37 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (_profile?.bio != null && _profile!.bio!.isNotEmpty)
                       _buildBioCard(),
                     if (_errorMessage != null) _buildError(),
+
+                    const SizedBox(height: 24),
+                    const Divider(height: 1, thickness: 1),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        'Posts',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    if (_userPosts.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Center(
+                          child: Text(
+                            'No posts yet.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      )
+                    else
+                      ..._userPosts.map(
+                        (post) => PostCardWidget(
+                          post: post,
+                          onPostDeleted: _loadProfile,
+                        ),
+                      ),
+
                     const SizedBox(height: 30),
                   ],
                 ),

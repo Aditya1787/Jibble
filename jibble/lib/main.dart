@@ -6,6 +6,7 @@ import 'screens/Profile/profile_page.dart';
 import 'screens/Search/search_page.dart';
 import 'screens/splash/splash_screen.dart';
 import 'services/first_launch_service.dart';
+import 'screens/create_post_page.dart';
 
 // Export MyHomePage so it can be imported by onboarding_gate
 export 'screens/home_page.dart';
@@ -91,6 +92,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MyHomePage(),
         '/profile': (context) => const ProfilePage(),
         '/search': (context) => const SearchPage(),
+        '/create-post': (context) => const CreatePostPage(),
       },
     );
   }
