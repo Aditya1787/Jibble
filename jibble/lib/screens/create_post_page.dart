@@ -139,9 +139,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
+        centerTitle: true,
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
         ),
         actions: [
           Padding(
@@ -164,16 +165,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: ElevatedButton(
                       onPressed: _submitPost,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(24),
                         ),
                       ),
                       child: const Text(
@@ -181,6 +189,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
@@ -189,31 +198,44 @@ class _CreatePostPageState extends State<CreatePostPage> {
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             if (widget.postType == 'confession')
               Container(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 padding: const EdgeInsets.all(16),
-                color: Colors.orange.withValues(alpha: 0.1),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
+                ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.orange.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
-                        Icons.privacy_tip_outlined,
+                        Icons.privacy_tip_rounded,
                         color: Colors.orange,
-                        size: 20,
+                        size: 22,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     const Expanded(
                       child: Text(
-                        'Your identity is completely hidden. Feel free to share openly.',
-                        style: TextStyle(color: Colors.black87, fontSize: 13),
+                        'Your identity is completely hidden. Feel free to share openly and safely.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
                       ),
                     ),
                   ],
@@ -221,66 +243,119 @@ class _CreatePostPageState extends State<CreatePostPage> {
               ),
 
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.postType != 'confession')
                     Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
+                      padding: const EdgeInsets.only(right: 16.0),
                       child: _isProfileLoading
-                          ? const CircleAvatar(
-                              backgroundColor: Colors.grey,
-                              radius: 20,
+                          ? Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
                             )
-                          : CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  _profile?.profilePictureUrl != null
-                                  ? NetworkImage(_profile!.profilePictureUrl!)
-                                  : null,
-                              backgroundColor: _primaryColor.withValues(
-                                alpha: 0.5,
+                          : Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _primaryColor.withValues(alpha: 0.1),
+                                image: _profile?.profilePictureUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          _profile!.profilePictureUrl!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                                border: Border.all(
+                                  color: Colors.grey.withValues(alpha: 0.2),
+                                  width: 1,
+                                ),
                               ),
                               child: _profile?.profilePictureUrl == null
                                   ? const Icon(
                                       Icons.person,
-                                      color: Colors.white,
+                                      color: _primaryColor,
+                                      size: 24,
                                     )
                                   : null,
                             ),
                     )
                   else
                     Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.grey[300],
-                        child: Icon(Icons.masks, color: Colors.grey[600]),
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(Icons.masks, color: Colors.grey[400]),
                       ),
                     ),
 
                   Expanded(
-                    child: TextField(
-                      controller: _captionController,
-                      maxLines: null, // Auto-expand
-                      minLines: 4,
-                      textInputAction: TextInputAction.newline,
-                      style: const TextStyle(fontSize: 16),
-                      decoration: InputDecoration(
-                        hintText: widget.postType == 'confession'
-                            ? 'What\'s your confession?'
-                            : widget.postType == 'event'
-                            ? 'Describe your event...'
-                            : 'What\'s on your mind?',
-                        hintStyle: TextStyle(
-                          color: Colors.grey[400],
-                          fontSize: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.postType != 'confession' &&
+                            !_isProfileLoading)
+                          Text(
+                            _profile?.name ?? 'User',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        if (widget.postType == 'confession')
+                          const Text(
+                            'Anonymous',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: _captionController,
+                          maxLines: null,
+                          minLines: 4,
+                          textInputAction: TextInputAction.newline,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            height: 1.5,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: widget.postType == 'confession'
+                                ? 'What\'s your confession?...'
+                                : widget.postType == 'event'
+                                ? 'Describe your event details...'
+                                : 'What\'s on your mind today?',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
                         ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                      ],
                     ),
                   ),
                 ],
@@ -289,91 +364,114 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
             if (widget.postType != 'confession')
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: _imageFile != null
-                    ? Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.file(
-                              _imageFile!,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
                             ),
-                          ),
-                          Positioned(
-                            top: 12,
-                            right: 12,
-                            child: GestureDetector(
-                              onTap: () => setState(() => _imageFile = null),
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.6),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close,
-                                  color: Colors.white,
-                                  size: 20,
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: AspectRatio(
+                                aspectRatio: 4 / 5,
+                                child: Image.file(
+                                  _imageFile!,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _imageFile = null),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       )
                     : GestureDetector(
                         onTap: _pickImage,
                         child: Container(
-                          height: 120,
+                          height: 180,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF4F6FB),
-                            borderRadius: BorderRadius.circular(16),
+                            color: const Color(0xFFF8F9FE),
+                            borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.grey.withValues(alpha: 0.2),
+                              color: _primaryColor.withValues(alpha: 0.2),
+                              width: 2,
+                              strokeAlign: BorderSide.strokeAlignInside,
                             ),
                           ),
+                          // To make a true dashed border we'd need a package, but this styled box is very clean
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.05,
+                                      color: _primaryColor.withValues(
+                                        alpha: 0.1,
                                       ),
-                                      blurRadius: 8,
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
                                 child: const Icon(
-                                  Icons.image_outlined,
+                                  Icons.add_photo_alternate_rounded,
                                   color: _primaryColor,
-                                  size: 28,
+                                  size: 32,
                                 ),
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Add a photo',
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Add a beautiful photo',
                                 style: TextStyle(
-                                  color: Colors.grey[700],
+                                  color: Colors.black87,
                                   fontWeight: FontWeight.w600,
+                                  fontSize: 16,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Text(
-                                'Max size 5MB',
+                                'JPEG, PNG, max 5MB',
                                 style: TextStyle(
                                   color: Colors.grey[500],
-                                  fontSize: 12,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -382,7 +480,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       ),
               ),
 
-            const SizedBox(height: 32),
+            // Extra padding at the bottom for scrolling past keyboard
+            const SizedBox(height: 100),
           ],
         ),
       ),

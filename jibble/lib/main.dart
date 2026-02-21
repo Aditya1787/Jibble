@@ -25,20 +25,23 @@ void main() async {
   // Make sure to add your credentials in lib/config/supabase_config.dart
   await SupabaseConfig.initialize();
 
+  final isFirstLaunch = await FirstLaunchService().isFirstLaunch();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => FeedProvider()),
       ],
-      child: const MyApp(),
+      child: MyApp(isFirstLaunch: isFirstLaunch),
     ),
   );
 }
 
 /// Root widget of the application
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isFirstLaunch;
+  const MyApp({super.key, required this.isFirstLaunch});
 
   @override
   Widget build(BuildContext context) {
@@ -82,23 +85,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Check if first launch and show appropriate screen
-      home: FutureBuilder<bool>(
-        future: FirstLaunchService().isFirstLaunch(),
-        builder: (context, snapshot) {
-          // Show loading while checking first launch status
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          // Show splash screen on first launch, otherwise show AuthGate
-          final isFirstLaunch = snapshot.data ?? false;
-          return isFirstLaunch
-              ? const EnhancedSplashScreen()
-              : const AuthGate();
-        },
-      ),
+      home: isFirstLaunch ? const EnhancedSplashScreen() : const AuthGate(),
       // Named routes for navigation
       routes: {
         '/home': (context) => const MyHomePage(),

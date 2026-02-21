@@ -61,8 +61,8 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
   }
 
   Future<void> _navigateToAuth() async {
-    // Wait for 4 seconds to show the animation
-    await Future.delayed(const Duration(seconds: 4));
+    // Wait for animation to show
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     // Mark first launch as complete
     final firstLaunchService = FirstLaunchService();

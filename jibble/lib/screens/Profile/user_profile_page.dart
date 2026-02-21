@@ -166,6 +166,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   ? CachedNetworkImage(
                       imageUrl: _profile!.profilePictureUrl!,
                       fit: BoxFit.cover,
+                      memCacheWidth: 300,
+                      memCacheHeight: 300,
                       errorWidget: (context, url, error) =>
                           Icon(Icons.person, size: 50, color: _primaryColor),
                     )

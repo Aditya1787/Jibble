@@ -66,6 +66,8 @@ class HomeDrawer extends StatelessWidget {
                                   child: CachedNetworkImage(
                                     imageUrl: profile!.profilePictureUrl!,
                                     fit: BoxFit.cover,
+                                    memCacheWidth: 300,
+                                    memCacheHeight: 300,
                                     placeholder: (context, url) => const Center(
                                       child: CircularProgressIndicator(),
                                     ),

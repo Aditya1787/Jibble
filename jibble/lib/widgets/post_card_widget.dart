@@ -161,7 +161,11 @@ class _PostCardWidgetState extends State<PostCardWidget> {
             leading: CircleAvatar(
               backgroundImage:
                   widget.post.profilePictureUrl != null && !isAnonymous
-                  ? CachedNetworkImageProvider(widget.post.profilePictureUrl!)
+                  ? CachedNetworkImageProvider(
+                      widget.post.profilePictureUrl!,
+                      maxHeight: 156,
+                      maxWidth: 156,
+                    )
                   : null,
               child: widget.post.profilePictureUrl == null || isAnonymous
                   ? const Icon(Icons.person)
@@ -237,6 +241,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
               imageUrl: widget.post.imageUrl!,
               width: double.infinity,
               fit: BoxFit.cover,
+              memCacheWidth: 1080,
               placeholder: (context, url) => Container(
                 height: 200,
                 color: Colors.grey[100],

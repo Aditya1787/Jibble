@@ -83,6 +83,8 @@ class CircleMemberTile extends StatelessWidget {
                         ? CachedNetworkImage(
                             imageUrl: member.profilePictureUrl!,
                             fit: BoxFit.cover,
+                            memCacheWidth: 156,
+                            memCacheHeight: 156,
                             errorWidget: (context, url, error) =>
                                 _buildInitialAvatar(),
                           )
