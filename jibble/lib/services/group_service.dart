@@ -118,9 +118,12 @@ class GroupService {
     String? iconEmoji,
   }) async {
     final data = <String, dynamic>{};
-    if (name != null && name.trim().isNotEmpty) data['name'] = name.trim();
-    if (iconEmoji != null && iconEmoji.isNotEmpty)
+    if (name != null && name.trim().isNotEmpty) {
+      data['name'] = name.trim();
+    }
+    if (iconEmoji != null && iconEmoji.isNotEmpty) {
       data['icon_emoji'] = iconEmoji;
+    }
     if (data.isEmpty) return;
 
     await _supabase.from('group_chats').update(data).eq('id', groupId);

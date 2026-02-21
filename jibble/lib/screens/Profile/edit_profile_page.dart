@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/profile_model.dart';
 import '../../services/profile_service.dart';
 import '../../services/auth_service.dart';
@@ -279,12 +280,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 height: 110,
                               )
                             : widget.profile.profilePictureUrl != null
-                            ? Image.network(
-                                widget.profile.profilePictureUrl!,
+                            ? CachedNetworkImage(
+                                imageUrl: widget.profile.profilePictureUrl!,
                                 fit: BoxFit.cover,
                                 width: 110,
                                 height: 110,
-                                errorBuilder: (_, __, _e) => Icon(
+                                errorWidget: (context, url, error) => Icon(
                                   Icons.person,
                                   size: 54,
                                   color: primaryColor,

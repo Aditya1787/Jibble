@@ -134,7 +134,7 @@ class _ChatListPageState extends State<ChatListPage>
       ),
       floatingActionButton: AnimatedBuilder(
         animation: _tabController,
-        builder: (_, __) {
+        builder: (context, child) {
           if (_tabController.index != 1) return const SizedBox.shrink();
           return FloatingActionButton.extended(
             onPressed: _goCreateGroup,

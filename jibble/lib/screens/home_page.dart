@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
-import '../services/profile_service.dart';
-import '../models/profile_model.dart';
+import 'package:provider/provider.dart';
+import '../providers/feed_provider.dart';
 import 'Chat/chat_list_page.dart';
-import 'Circle/circle_page.dart';
-import '../services/post_service.dart';
-import '../models/post_model.dart';
 import '../widgets/post_card_widget.dart';
+import '../widgets/home_drawer.dart';
+import '../widgets/custom_bottom_nav_bar.dart';
 
 /// Main Home Page with Instagram-like UI
-///
-/// Features:
-/// - Drawer with profile, menu items, and logout
-/// - Post grid layout
-/// - Bottom navigation bar
+/// Features: Provider state management, Pagination, Cached Images
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
 
@@ -22,81 +16,50 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _authService = AuthService();
-  final _profileService = ProfileService();
-  final _postService = PostService();
-
-  ProfileModel? _profile;
-  List<PostModel> _posts = [];
-  bool _isLoading = true;
-  bool _isLoadingPosts = true;
   int _selectedIndex = 0;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
-    _loadPosts();
-  }
-
-  Future<void> _loadPosts() async {
-    setState(() => _isLoadingPosts = true);
-    try {
-      final posts = await _postService.fetchHomeFeed();
-      if (mounted) {
-        setState(() {
-          _posts = posts;
-          _isLoadingPosts = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoadingPosts = false);
-    }
-  }
-
-  Future<void> _loadProfile() async {
-    setState(() {
-      _isLoading = true;
+    // Load initial feed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FeedProvider>().loadHomeFeed(refresh: true);
     });
 
-    try {
-      final user = _authService.currentUser;
-      if (user != null) {
-        final profile = await _profileService.getProfile(user.id);
-        setState(() {
-          _profile = profile;
-          _isLoading = false;
-        });
+    // Pagination listener
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 500) {
+        context.read<FeedProvider>().loadHomeFeed();
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    });
   }
 
-  void _onBottomNavTap(int index) {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onBottomNavTap(int index) async {
     setState(() {
       _selectedIndex = index;
     });
 
-    // Handle navigation based on index
     switch (index) {
-      case 0: // Home - already here
+      case 0: // Home
         break;
       case 1: // Search
         Navigator.of(context).pushNamed('/search');
         break;
       case 2: // Upload
-        Navigator.of(context).pushNamed('/create-post').then((_) {
-          // Refresh feed if a post was created
-          _loadPosts();
-        });
-        // Stay on current tab visually (or change if preferred)
+        await Navigator.of(context).pushNamed('/create-post');
+        if (!mounted) return;
+        context.read<FeedProvider>().loadHomeFeed(refresh: true);
         setState(() => _selectedIndex = 0);
         break;
       case 3: // Reels
-        // TODO: Navigate to reels page
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reels feature coming soon!')),
         );
@@ -134,393 +97,68 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite_border, color: Color(0xFF6B4CE6)),
-            onPressed: () {
-              // TODO: Navigate to favorites
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.send_outlined, color: Color(0xFF6B4CE6)),
-            onPressed: () {
-              // TODO: Navigate to messages
-            },
+            onPressed: () {},
           ),
         ],
       ),
-      drawer: _buildDrawer(),
+      drawer: const HomeDrawer(),
       body: _buildPostGrid(),
-      bottomNavigationBar: _buildBottomNavBar(),
-    );
-  }
-
-  Widget _buildDrawer() {
-    final user = _authService.currentUser;
-
-    return Drawer(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF6B4CE6),
-              const Color(0xFF6B4CE6).withValues(alpha: 0.8),
-            ],
-          ),
-        ),
-        child: Column(
-          children: [
-            // Profile Section
-            Container(
-              padding: const EdgeInsets.only(top: 60, bottom: 20),
-              child: Column(
-                children: [
-                  // Profile Picture - Clickable
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop(); // Close drawer
-                      Navigator.of(context).pushNamed('/profile');
-                    },
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: _isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF6B4CE6),
-                                ),
-                              ),
-                            )
-                          : _profile?.profilePictureUrl != null
-                          ? ClipOval(
-                              child: Image.network(
-                                _profile!.profilePictureUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(
-                                    Icons.person,
-                                    size: 50,
-                                    color: Color(0xFF6B4CE6),
-                                  );
-                                },
-                              ),
-                            )
-                          : const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Color(0xFF6B4CE6),
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Username
-                  Text(
-                    _profile?.username ?? user?.email?.split('@')[0] ?? 'User',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    user?.email ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(color: Colors.white24, thickness: 1),
-
-            // Menu Items
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildDrawerItem(
-                    icon: Icons.diversity_3_outlined,
-                    title: 'Circle',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const CirclePage()),
-                      );
-                    },
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.feed_outlined,
-                    title: 'Category Feed',
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Category Feed coming soon!'),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.handshake_outlined,
-                    title: 'Skills Matching App',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // TODO: Navigate to skills matching
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Skills Matching coming soon!'),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.settings_outlined,
-                    title: 'Settings',
-                    onTap: () {
-                      Navigator.pop(context);
-                      // TODO: Navigate to settings
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Settings coming soon!'),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // Logout Button at Bottom
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final shouldLogout = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text('Logout'),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (shouldLogout == true) {
-                    try {
-                      await _authService.signOut();
-                      if (mounted) {
-                        Navigator.of(
-                          context,
-                        ).pushNamedAndRemoveUntil('/', (route) => false);
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error logging out: $e'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  }
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text(
-                  'Logout',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.red[400],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      bottomNavigationBar: CustomBottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onBottomNavTap,
       ),
-    );
-  }
-
-  Widget _buildDrawerItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white, size: 26),
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      onTap: onTap,
-      hoverColor: Colors.white.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 
   Widget _buildPostGrid() {
-    if (_isLoadingPosts) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Consumer<FeedProvider>(
+      builder: (context, feed, _) {
+        if (feed.homePosts.isEmpty && feed.isHomeLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    if (_posts.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.feed_outlined, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'No posts yet.\nBe the first to share something!',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+        if (feed.homePosts.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.feed_outlined, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  'No posts yet.\nBe the first to share something!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
-    }
+          );
+        }
 
-    return RefreshIndicator(
-      onRefresh: _loadPosts,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: _posts.length,
-        itemBuilder: (context, index) {
-          return PostCardWidget(post: _posts[index], onPostDeleted: _loadPosts);
-        },
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+        return RefreshIndicator(
+          onRefresh: () => feed.loadHomeFeed(refresh: true),
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: feed.homePosts.length + (feed.hasMoreHomePosts ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == feed.homePosts.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return PostCardWidget(
+                post: feed.homePosts[index],
+                onPostDeleted: () => feed.loadHomeFeed(refresh: true),
+              );
+            },
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(Icons.home, 'Home', 0),
-              _buildNavItem(Icons.search, 'Search', 1),
-              _buildUploadButton(),
-              _buildNavItem(Icons.video_library, 'Reels', 3),
-              _buildNavItem(Icons.chat_bubble_outline, 'Chat', 4),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    final isSelected = _selectedIndex == index;
-
-    return GestureDetector(
-      onTap: () => _onBottomNavTap(index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF6B4CE6).withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? const Color(0xFF6B4CE6) : Colors.grey[600],
-              size: 26,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: isSelected ? const Color(0xFF6B4CE6) : Colors.grey[600],
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUploadButton() {
-    return GestureDetector(
-      onTap: () => _onBottomNavTap(2),
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF6B4CE6), Color(0xFF9D7CE8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF6B4CE6).withValues(alpha: 0.4),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: const Icon(Icons.add, color: Colors.white, size: 32),
-      ),
+        );
+      },
     );
   }
 }

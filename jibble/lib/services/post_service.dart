@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/post_model.dart';
@@ -29,6 +31,32 @@ class PostService {
         .eq('type', 'standard')
         .order('created_at', ascending: false)
         .limit(50);
+
+    return (response as List<dynamic>)
+        .map((post) => PostModel.fromJson(post, currentUserId: currentUser?.id))
+        .toList();
+  }
+
+  /// Fetch public 'standard' posts using Pagination
+  Future<List<PostModel>> fetchHomeFeedPaginated({
+    required int page,
+    required int limit,
+  }) async {
+    final currentUser = supabase.auth.currentUser;
+    final start = page * limit;
+    final end = start + limit - 1;
+
+    final response = await supabase
+        .from(postsTable)
+        .select('''
+          *,
+          profiles:user_id(username, name, profile_picture_url),
+          post_likes(user_id, profiles:user_id(username)),
+          post_comments(id)
+        ''')
+        .eq('type', 'standard')
+        .order('created_at', ascending: false)
+        .range(start, end);
 
     return (response as List<dynamic>)
         .map((post) => PostModel.fromJson(post, currentUserId: currentUser?.id))
@@ -81,6 +109,17 @@ class PostService {
         throw Exception('Image size must be less than 5MB');
       }
 
+      // Compress image
+      final Uint8List? compressedBytes =
+          await FlutterImageCompress.compressWithFile(
+            imageFile.absolute.path,
+            minWidth: 1080,
+            minHeight: 1080,
+            quality: 75,
+          );
+
+      if (compressedBytes == null) throw Exception('Failed to compress image');
+
       final ext = imageFile.path.split('.').last;
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
       final currentUserId = supabase.auth.currentUser!.id;
@@ -88,9 +127,9 @@ class PostService {
 
       await supabase.storage
           .from(storageBucket)
-          .upload(
+          .uploadBinary(
             filePath,
-            imageFile,
+            compressedBytes,
             fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
           );
 

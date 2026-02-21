@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/circle_member_model.dart';
 import '../../screens/Profile/user_profile_page.dart';
 import '../../screens/Profile/fullscreen_photo_page.dart';
@@ -79,10 +80,11 @@ class CircleMemberTile extends StatelessWidget {
                   ),
                   child: ClipOval(
                     child: member.profilePictureUrl != null
-                        ? Image.network(
-                            member.profilePictureUrl!,
+                        ? CachedNetworkImage(
+                            imageUrl: member.profilePictureUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _buildInitialAvatar(),
+                            errorWidget: (context, url, error) =>
+                                _buildInitialAvatar(),
                           )
                         : _buildInitialAvatar(),
                   ),

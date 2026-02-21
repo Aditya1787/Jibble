@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/profile_model.dart';
@@ -135,12 +137,23 @@ class ProfileService {
       final fileExt = imageFile.path.split('.').last;
       final fileName = '$userId/profile.$fileExt';
 
+      // Compress image
+      final Uint8List? compressedBytes =
+          await FlutterImageCompress.compressWithFile(
+            imageFile.absolute.path,
+            minWidth: 512,
+            minHeight: 512,
+            quality: 70,
+          );
+
+      if (compressedBytes == null) throw Exception('Failed to compress image');
+
       // Upload to storage
       await supabase.storage
           .from('profile-pictures')
-          .upload(
+          .uploadBinary(
             fileName,
-            imageFile,
+            compressedBytes,
             fileOptions: const FileOptions(
               upsert: true, // Replace if exists
             ),

@@ -104,6 +104,40 @@ class PostModel {
     if (diff.inDays < 7) return '${diff.inDays}d';
     return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
   }
+
+  PostModel copyWith({
+    String? id,
+    String? userId,
+    String? type,
+    String? caption,
+    String? imageUrl,
+    String? collegeName,
+    DateTime? createdAt,
+    String? username,
+    String? fullName,
+    String? profilePictureUrl,
+    int? likesCount,
+    int? commentsCount,
+    bool? isLikedByMe,
+    String? recentLikerUsername,
+  }) {
+    return PostModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      type: type ?? this.type,
+      caption: caption ?? this.caption,
+      imageUrl: imageUrl ?? this.imageUrl,
+      collegeName: collegeName ?? this.collegeName,
+      createdAt: createdAt ?? this.createdAt,
+      username: username ?? this.username,
+      fullName: fullName ?? this.fullName,
+      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
+      likesCount: likesCount ?? this.likesCount,
+      commentsCount: commentsCount ?? this.commentsCount,
+      isLikedByMe: isLikedByMe ?? this.isLikedByMe,
+      recentLikerUsername: recentLikerUsername ?? this.recentLikerUsername,
+    );
+  }
 }
 
 class CommentModel {

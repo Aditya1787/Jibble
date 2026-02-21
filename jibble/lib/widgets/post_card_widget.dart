@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/post_model.dart';
 import '../services/follow_service.dart';
 import '../services/post_service.dart';
 import '../services/auth_service.dart';
+import '../providers/feed_provider.dart';
 
 class PostCardWidget extends StatefulWidget {
   final PostModel post;
@@ -25,16 +28,12 @@ class _PostCardWidgetState extends State<PostCardWidget> {
   final _postService = PostService();
   final _authService = AuthService();
 
-  late bool _isLiked;
-  late int _likesCount;
   bool _isFollowing = false;
   bool _isLoadingFollow = false;
 
   @override
   void initState() {
     super.initState();
-    _isLiked = widget.post.isLikedByMe;
-    _likesCount = widget.post.likesCount;
     _checkFollowStatus();
   }
 
@@ -74,37 +73,24 @@ class _PostCardWidgetState extends State<PostCardWidget> {
         _isFollowing = !_isFollowing;
       });
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update follow status: $e')),
+        SnackBar(content: Text('Failed to update follow status: \$e')),
       );
     } finally {
-      setState(() {
-        _isLoadingFollow = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoadingFollow = false;
+        });
+      }
     }
   }
 
   Future<void> _toggleLike() async {
-    final wasLiked = _isLiked;
-
-    // Optimistic UI update
-    setState(() {
-      _isLiked = !_isLiked;
-      _likesCount += _isLiked ? 1 : -1;
-    });
-
-    try {
-      await _postService.toggleLike(widget.post.id, wasLiked);
-    } catch (e) {
-      // Revert on failure
-      setState(() {
-        _isLiked = wasLiked;
-        _likesCount += _isLiked ? 1 : -1;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to like post: $e')));
-    }
+    await context.read<FeedProvider>().toggleLike(
+      widget.post.id,
+      widget.post.isLikedByMe,
+    );
   }
 
   void _showOptions() {
@@ -175,7 +161,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
             leading: CircleAvatar(
               backgroundImage:
                   widget.post.profilePictureUrl != null && !isAnonymous
-                  ? NetworkImage(widget.post.profilePictureUrl!)
+                  ? CachedNetworkImageProvider(widget.post.profilePictureUrl!)
                   : null,
               child: widget.post.profilePictureUrl == null || isAnonymous
                   ? const Icon(Icons.person)
@@ -247,11 +233,16 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
           // Image
           if (widget.post.imageUrl != null)
-            Image.network(
-              widget.post.imageUrl!,
+            CachedNetworkImage(
+              imageUrl: widget.post.imageUrl!,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stack) => Container(
+              placeholder: (context, url) => Container(
+                height: 200,
+                color: Colors.grey[100],
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
                 height: 200,
                 color: Colors.grey[200],
                 child: const Center(child: Icon(Icons.error)),
@@ -263,8 +254,10 @@ class _PostCardWidgetState extends State<PostCardWidget> {
             children: [
               IconButton(
                 icon: Icon(
-                  _isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: _isLiked ? Colors.red : Colors.black,
+                  widget.post.isLikedByMe
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: widget.post.isLikedByMe ? Colors.red : Colors.black,
                 ),
                 onPressed: _toggleLike,
               ),
@@ -295,9 +288,9 @@ class _PostCardWidgetState extends State<PostCardWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_likesCount > 0)
+                if (widget.post.likesCount > 0)
                   Text(
-                    '$_likesCount ${_likesCount == 1 ? 'like' : 'likes'}',
+                    '${widget.post.likesCount} ${widget.post.likesCount == 1 ? 'like' : 'likes'}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 if (widget.post.recentLikerUsername != null)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/auth_service.dart';
 import '../../services/profile_service.dart';
 import '../../services/follow_service.dart';
@@ -216,10 +217,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: ClipOval(
                   child: _profile?.profilePictureUrl != null
-                      ? Image.network(
-                          _profile!.profilePictureUrl!,
+                      ? CachedNetworkImage(
+                          imageUrl: _profile!.profilePictureUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, _e) => Icon(
+                          errorWidget: (context, url, error) => Icon(
                             Icons.person,
                             size: 50,
                             color: _primaryColor,

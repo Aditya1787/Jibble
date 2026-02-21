@@ -239,15 +239,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
                                   _profile?.profilePictureUrl != null
                                   ? NetworkImage(_profile!.profilePictureUrl!)
                                   : null,
+                              backgroundColor: _primaryColor.withValues(
+                                alpha: 0.5,
+                              ),
                               child: _profile?.profilePictureUrl == null
                                   ? const Icon(
                                       Icons.person,
                                       color: Colors.white,
                                     )
                                   : null,
-                              backgroundColor: _primaryColor.withValues(
-                                alpha: 0.5,
-                              ),
                             ),
                     )
                   else

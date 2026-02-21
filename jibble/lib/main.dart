@@ -11,6 +11,10 @@ import 'screens/create_post_page.dart';
 // Export MyHomePage so it can be imported by onboarding_gate
 export 'screens/home_page.dart';
 
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'providers/feed_provider.dart';
+
 /// Main entry point of the application
 ///
 /// Initializes Supabase before running the app
@@ -21,7 +25,15 @@ void main() async {
   // Make sure to add your credentials in lib/config/supabase_config.dart
   await SupabaseConfig.initialize();
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => FeedProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// Root widget of the application

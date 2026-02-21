@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 /// Full Screen Photo Page
 ///
@@ -69,7 +70,7 @@ class _FullScreenPhotoPageState extends State<FullScreenPhotoPage>
       _resetAnimation =
           Matrix4Tween(
             begin: _transformController.value,
-            end: Matrix4.identity()..scale(2.5),
+            end: Matrix4.diagonal3Values(2.5, 2.5, 1.0),
           ).animate(
             CurvedAnimation(parent: _animController, curve: Curves.easeOut),
           );
@@ -116,23 +117,19 @@ class _FullScreenPhotoPageState extends State<FullScreenPhotoPage>
                           .getMaxScaleOnAxis();
                       setState(() => _isZoomed = scale > 1.05);
                     },
-                    child: Image.network(
-                      widget.imageUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.imageUrl!,
                       fit: BoxFit.contain,
-                      loadingBuilder: (_, child, progress) {
-                        if (progress == null) return child;
+                      progressIndicatorBuilder: (context, url, progress) {
                         return Center(
                           child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded /
-                                      progress.expectedTotalBytes!
-                                : null,
+                            value: progress.progress,
                             color: Colors.white,
                             strokeWidth: 2,
                           ),
                         );
                       },
-                      errorBuilder: (_, __, ___) => _buildPlaceholder(),
+                      errorWidget: (context, url, error) => _buildPlaceholder(),
                     ),
                   ),
                 ),
