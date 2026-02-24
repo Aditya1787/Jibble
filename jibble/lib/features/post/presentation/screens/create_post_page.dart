@@ -1,0 +1,497 @@
+﻿import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:jibble/features/post/data/datasources/post_service.dart';
+import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/features/profile/data/models/profile_model.dart';
+import 'package:jibble/features/profile/data/datasources/profile_service.dart';
+
+class CreatePostPage extends StatefulWidget {
+  final bool isCirclePost;
+  final String postType; // 'standard', 'event', 'confession'
+
+  const CreatePostPage({
+    super.key,
+    this.isCirclePost = false,
+    this.postType = 'standard',
+  });
+
+  @override
+  State<CreatePostPage> createState() => _CreatePostPageState();
+}
+
+class _CreatePostPageState extends State<CreatePostPage> {
+  final _captionController = TextEditingController();
+  final _postService = PostService();
+  final _authService = AuthService();
+  final _profileService = ProfileService();
+
+  ProfileModel? _profile;
+  File? _imageFile;
+  bool _isLoading = false;
+  bool _isProfileLoading = true;
+
+  static const _primaryColor = Color(0xFF6B4CE6);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        final profile = await _profileService.getProfile(user.id);
+        if (mounted) {
+          setState(() {
+            _profile = profile;
+            _isProfileLoading = false;
+          });
+        }
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isProfileLoading = false);
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final size = await file.length();
+
+      // 5MB limit
+      if (size > PostService.maxFileSize) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Image is too large. Please select an image under 5MB.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        _imageFile = file;
+      });
+    }
+  }
+
+  Future<void> _submitPost() async {
+    if ((_captionController.text.trim().isEmpty && _imageFile == null) &&
+        widget.postType != 'confession') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please add a photo or write a caption.')),
+      );
+      return;
+    }
+
+    if (widget.postType == 'confession' &&
+        _captionController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Confessions require text.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _postService.createPost(
+        type: widget.postType,
+        caption: _captionController.text.trim(),
+        imageFile: _imageFile,
+        isAnonymous: widget.postType == 'confession',
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop(true); // Return true to indicate success
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to post: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String title = 'Create Post';
+    if (widget.postType == 'event') title = 'Create Event';
+    if (widget.postType == 'confession') title = 'Anonymous Confession';
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        centerTitle: true,
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: _isLoading
+                ? const Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _primaryColor,
+                      ),
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [_primaryColor, Color(0xFF9D7CE8)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _submitPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                      child: const Text(
+                        'Post',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            if (widget.postType == 'confession')
+              Container(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.privacy_tip_rounded,
+                        color: Colors.orange,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Text(
+                        'Your identity is completely hidden. Feel free to share openly and safely.',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.postType != 'confession')
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: _isProfileLoading
+                          ? Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                shape: BoxShape.circle,
+                              ),
+                            )
+                          : Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _primaryColor.withValues(alpha: 0.1),
+                                image: _profile?.profilePictureUrl != null
+                                    ? DecorationImage(
+                                        image: NetworkImage(
+                                          _profile!.profilePictureUrl!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                                border: Border.all(
+                                  color: Colors.grey.withValues(alpha: 0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: _profile?.profilePictureUrl == null
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: _primaryColor,
+                                      size: 24,
+                                    )
+                                  : null,
+                            ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(Icons.masks, color: Colors.grey[400]),
+                      ),
+                    ),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.postType != 'confession' &&
+                            !_isProfileLoading)
+                          Text(
+                            _profile?.name ?? 'User',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        if (widget.postType == 'confession')
+                          const Text(
+                            'Anonymous',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        TextField(
+                          controller: _captionController,
+                          maxLines: null,
+                          minLines: 4,
+                          textInputAction: TextInputAction.newline,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            height: 1.5,
+                            color: Colors.black87,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: widget.postType == 'confession'
+                                ? 'What\'s your confession?...'
+                                : widget.postType == 'event'
+                                ? 'Describe your event details...'
+                                : 'What\'s on your mind today?',
+                            hintStyle: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (widget.postType != 'confession')
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: _imageFile != null
+                    ? Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: AspectRatio(
+                                aspectRatio: 4 / 5,
+                                child: Image.file(
+                                  _imageFile!,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _imageFile = null),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          height: 180,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FE),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _primaryColor.withValues(alpha: 0.2),
+                              width: 2,
+                              strokeAlign: BorderSide.strokeAlignInside,
+                            ),
+                          ),
+                          // To make a true dashed border we'd need a package, but this styled box is very clean
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: _primaryColor.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.add_photo_alternate_rounded,
+                                  color: _primaryColor,
+                                  size: 32,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Add a beautiful photo',
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'JPEG, PNG, max 5MB',
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ),
+
+            // Extra padding at the bottom for scrolling past keyboard
+            const SizedBox(height: 100),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _captionController.dispose();
+    super.dispose();
+  }
+}
+

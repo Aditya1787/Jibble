@@ -1,5 +1,9 @@
-Analyzing jibble...                                             
+﻿Analyzing jibble...                                             
 
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\fullscreen_photo_page.dart:123:53 - unnecessary_underscores
-   info - Don't use 'BuildContext's across async gaps - lib\widgets\post_card_widget.dart:76:28 - use_build_context_synchronously
+   info - Unnecessary escape in string literal - generate_core.dart:63:90 - unnecessary_string_escapes
+   info - Don't invoke 'print' in production code - generate_core.dart:499:5 - avoid_print
+   info - Parameter 'message' could be a super parameter - lib\core\errors\failures.dart:7:3 - use_super_parameters
+   info - Parameter 'message' could be a super parameter - lib\core\errors\failures.dart:11:3 - use_super_parameters
+   info - Parameter 'message' could be a super parameter - lib\core\errors\failures.dart:15:3 - use_super_parameters
+   info - The imported package 'path' isn't a dependency of the importing package - lib\core\services\storage_service.dart:3:8 - depend_on_referenced_packages
 

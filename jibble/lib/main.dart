@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
-import 'config/supabase_config.dart';
-import 'widgets/auth_gate.dart';
-import 'screens/home_page.dart';
-import 'screens/Profile/profile_page.dart';
-import 'screens/Search/search_page.dart';
-import 'screens/splash/splash_screen.dart';
-import 'services/first_launch_service.dart';
-import 'screens/create_post_page.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/features/auth/presentation/widgets/auth_gate.dart';
+import 'package:jibble/features/home/presentation/screens/home_page.dart';
+import 'package:jibble/features/profile/presentation/screens/profile_page.dart';
+import 'package:jibble/features/search/presentation/screens/search_page.dart';
+import 'package:jibble/features/auth/presentation/screens/splash_screen.dart';
+import 'package:jibble/features/auth/data/datasources/first_launch_service.dart';
+import 'package:jibble/features/post/presentation/screens/create_post_page.dart';
 
 // Export MyHomePage so it can be imported by onboarding_gate
-export 'screens/home_page.dart';
+export 'package:jibble/features/home/presentation/screens/home_page.dart';
 
 import 'package:provider/provider.dart';
-import 'providers/auth_provider.dart';
-import 'providers/feed_provider.dart';
+import 'package:jibble/features/auth/presentation/provider/auth_provider.dart';
+import 'package:jibble/features/home/presentation/provider/feed_provider.dart';
 
 /// Main entry point of the application
 ///

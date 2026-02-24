@@ -1,21 +1,336 @@
-Analyzing jibble...                                             
+﻿Analyzing jibble...                                             
 
-   info - The private field _homePosts could be 'final' - lib\providers\feed_provider.dart:8:19 - prefer_final_fields
-   info - Unnecessary use of multiple underscores - lib\screens\Chat\chat_list_page.dart:137:22 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Circle\circle_member_tile.dart:86:46 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Circle\circle_member_tile.dart:86:50 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\edit_profile_page.dart:288:50 - unnecessary_underscores
-   info - The local variable '_e' starts with an underscore - lib\screens\Profile\edit_profile_page.dart:288:54 - no_leading_underscores_for_local_identifiers
-   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - lib\screens\Profile\fullscreen_photo_page.dart:73:38 - deprecated_member_use
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\fullscreen_photo_page.dart:123:53 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\fullscreen_photo_page.dart:132:40 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\fullscreen_photo_page.dart:132:44 - unnecessary_underscores
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\profile_page.dart:223:44 - unnecessary_underscores
-   info - The local variable '_e' starts with an underscore - lib\screens\Profile\profile_page.dart:223:48 - no_leading_underscores_for_local_identifiers
-   info - Unnecessary use of multiple underscores - lib\screens\Profile\user_profile_page.dart:169:40 - unnecessary_underscores
-   info - The local variable '_e' starts with an underscore - lib\screens\Profile\user_profile_page.dart:169:44 - no_leading_underscores_for_local_identifiers
-   info - The 'child' argument should be last in widget constructor invocations - lib\screens\create_post_page.dart:242:31 - sort_child_properties_last
-   info - Don't use 'BuildContext's across async gaps - lib\screens\home_page.dart:58:11 - use_build_context_synchronously
-   info - Statements in an if should be enclosed in a block - lib\services\group_service.dart:123:7 - curly_braces_in_flow_control_structures
-   info - Don't use 'BuildContext's across async gaps - lib\widgets\post_card_widget.dart:76:28 - use_build_context_synchronously
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\auth\data\datasources\auth_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:15:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:19:45 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:30:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:51:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:68:13 - undefined_identifier
+  error - Target of URI doesn't exist: '../services/auth_service.dart' - lib\features\auth\presentation\provider\auth_provider.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/profile_service.dart' - lib\features\auth\presentation\provider\auth_provider.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../models/profile_model.dart' - lib\features\auth\presentation\provider\auth_provider.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'AuthService' - lib\features\auth\presentation\provider\auth_provider.dart:8:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type 'AuthProvider' - lib\features\auth\presentation\provider\auth_provider.dart:8:36 - undefined_method
+  error - Undefined class 'ProfileService' - lib\features\auth\presentation\provider\auth_provider.dart:9:9 - undefined_class
+  error - The method 'ProfileService' isn't defined for the type 'AuthProvider' - lib\features\auth\presentation\provider\auth_provider.dart:9:42 - undefined_method
+  error - Undefined class 'ProfileModel' - lib\features\auth\presentation\provider\auth_provider.dart:12:3 - undefined_class
+  error - Undefined class 'ProfileModel' - lib\features\auth\presentation\provider\auth_provider.dart:16:3 - undefined_class
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\auth\presentation\screens\login_page.dart:2:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_LoginPageState' - lib\features\auth\presentation\screens\login_page.dart:19:24 - undefined_method
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\auth\presentation\screens\logout_page.dart:2:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type 'LogoutPage' - lib\features\auth\presentation\screens\logout_page.dart:138:25 - undefined_method
+  error - Target of URI doesn't exist: '../../services/profile_service.dart' - lib\features\auth\presentation\screens\onboarding\profile_picture_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\auth\presentation\screens\onboarding\profile_picture_page.dart:5:8 - uri_does_not_exist
+  error - The method 'ProfileService' isn't defined for the type '_ProfilePicturePageState' - lib\features\auth\presentation\screens\onboarding\profile_picture_page.dart:27:27 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_ProfilePicturePageState' - lib\features\auth\presentation\screens\onboarding\profile_picture_page.dart:28:24 - undefined_method
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\auth\presentation\screens\register_page.dart:2:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_RegisterPageState' - lib\features\auth\presentation\screens\register_page.dart:19:24 - undefined_method
+  error - Target of URI doesn't exist: '../../services/first_launch_service.dart' - lib\features\auth\presentation\screens\splash_screen.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../widgets/auth_gate.dart' - lib\features\auth\presentation\screens\splash_screen.dart:5:8 - uri_does_not_exist
+  error - The method 'FirstLaunchService' isn't defined for the type '_EnhancedSplashScreenState' - lib\features\auth\presentation\screens\splash_screen.dart:68:32 - undefined_method
+  error - The name 'AuthGate' isn't a class - lib\features\auth\presentation\screens\splash_screen.dart:76:21 - creation_with_non_type
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\auth\presentation\widgets\auth_gate.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/Authentication/login_page.dart' - lib\features\auth\presentation\widgets\auth_gate.dart:4:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\auth\presentation\widgets\auth_gate.dart:20:15 - undefined_identifier
+  error - The name 'LoginPage' isn't a class - lib\features\auth\presentation\widgets\auth_gate.dart:28:22 - creation_with_non_type
+  error - Target of URI doesn't exist: '../services/auth_service.dart' - lib\features\auth\presentation\widgets\onboarding_gate.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/profile_service.dart' - lib\features\auth\presentation\widgets\onboarding_gate.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../main.dart' - lib\features\auth\presentation\widgets\onboarding_gate.dart:5:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type 'OnboardingGate' - lib\features\auth\presentation\widgets\onboarding_gate.dart:17:25 - undefined_method
+  error - The method 'ProfileService' isn't defined for the type 'OnboardingGate' - lib\features\auth\presentation\widgets\onboarding_gate.dart:18:28 - undefined_method
+  error - The getter 'profileCompleted' isn't defined for the type 'Object' - lib\features\auth\presentation\widgets\onboarding_gate.dart:85:41 - undefined_getter
+  error - The name 'MyHomePage' isn't a class - lib\features\auth\presentation\widgets\onboarding_gate.dart:90:22 - creation_with_non_type
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\chat\data\datasources\chat_service.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\chat\data\datasources\chat_service.dart:11:36 - undefined_identifier
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\chat\data\datasources\group_service.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\chat\data\datasources\group_service.dart:18:36 - undefined_identifier
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\chat\presentation\screens\chat_arena_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/chat_service.dart' - lib\features\chat\presentation\screens\chat_arena_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/message_model.dart' - lib\features\chat\presentation\screens\chat_arena_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Profile/user_profile_page.dart' - lib\features\chat\presentation\screens\chat_arena_page.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Profile/fullscreen_photo_page.dart' - lib\features\chat\presentation\screens\chat_arena_page.dart:8:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_ChatArenaPageState' - lib\features\chat\presentation\screens\chat_arena_page.dart:33:24 - undefined_method
+  error - The method 'ChatService' isn't defined for the type '_ChatArenaPageState' - lib\features\chat\presentation\screens\chat_arena_page.dart:34:24 - undefined_method
+  error - The name 'MessageModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\chat_arena_page.dart:41:8 - non_type_as_type_argument
+  error - The method 'UserProfilePage' isn't defined for the type '_ChatArenaPageState' - lib\features\chat\presentation\screens\chat_arena_page.dart:115:25 - undefined_method
+  error - The method 'FullScreenPhotoPage' isn't defined for the type '_ChatArenaPageState' - lib\features\chat\presentation\screens\chat_arena_page.dart:123:25 - undefined_method
+  error - Undefined class 'MessageModel' - lib\features\chat\presentation\screens\chat_arena_page.dart:340:30 - undefined_class
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/chat_service.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/group_service.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/chat_model.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/group_model.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../widgets/Chat/chat_list_item_widget.dart' - lib\features\chat\presentation\screens\chat_list_page.dart:7:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_ChatListPageState' - lib\features\chat\presentation\screens\chat_list_page.dart:24:24 - undefined_method
+  error - The method 'ChatService' isn't defined for the type '_ChatListPageState' - lib\features\chat\presentation\screens\chat_list_page.dart:25:24 - undefined_method
+  error - The method 'GroupService' isn't defined for the type '_ChatListPageState' - lib\features\chat\presentation\screens\chat_list_page.dart:26:25 - undefined_method
+  error - The name 'ChatModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\chat_list_page.dart:33:8 - non_type_as_type_argument
+  error - The name 'GroupModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\chat_list_page.dart:38:8 - non_type_as_type_argument
+  error - The method 'ChatListItemWidget' isn't defined for the type '_ChatListPageState' - lib\features\chat\presentation\screens\chat_list_page.dart:175:32 - undefined_method
+  error - Undefined class 'GroupModel' - lib\features\chat\presentation\screens\chat_list_page.dart:236:26 - undefined_class
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\chat\presentation\screens\create_group_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/group_service.dart' - lib\features\chat\presentation\screens\create_group_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/user_search_service.dart' - lib\features\chat\presentation\screens\create_group_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\chat\presentation\screens\create_group_page.dart:5:8 - uri_does_not_exist
+  error - The method 'GroupService' isn't defined for the type '_CreateGroupPageState' - lib\features\chat\presentation\screens\create_group_page.dart:21:25 - undefined_method
+  error - The method 'UserSearchService' isn't defined for the type '_CreateGroupPageState' - lib\features\chat\presentation\screens\create_group_page.dart:22:30 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_CreateGroupPageState' - lib\features\chat\presentation\screens\create_group_page.dart:23:24 - undefined_method
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\create_group_page.dart:50:8 - non_type_as_type_argument
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\create_group_page.dart:52:21 - non_type_as_type_argument
+  error - Undefined class 'UserSearchModel' - lib\features\chat\presentation\screens\create_group_page.dart:84:20 - undefined_class
+  error - The property 'profilePictureUrl' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\create_group_page.dart:281:46 - unchecked_use_of_nullable_value
+  error - The property 'profilePictureUrl' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\create_group_page.dart:282:48 - unchecked_use_of_nullable_value
+  error - The property 'profilePictureUrl' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\create_group_page.dart:284:36 - unchecked_use_of_nullable_value
+  error - The property 'displayName' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\create_group_page.dart:286:37 - unchecked_use_of_nullable_value
+  error - The property 'displayName' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\create_group_page.dart:295:29 - unchecked_use_of_nullable_value
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\chat\presentation\screens\group_arena_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/group_service.dart' - lib\features\chat\presentation\screens\group_arena_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/group_model.dart' - lib\features\chat\presentation\screens\group_arena_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/group_message_model.dart' - lib\features\chat\presentation\screens\group_arena_page.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'GroupModel' - lib\features\chat\presentation\screens\group_arena_page.dart:14:9 - undefined_class
+  error - The method 'GroupService' isn't defined for the type '_GroupArenaPageState' - lib\features\chat\presentation\screens\group_arena_page.dart:23:25 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_GroupArenaPageState' - lib\features\chat\presentation\screens\group_arena_page.dart:24:24 - undefined_method
+  error - Undefined class 'GroupModel' - lib\features\chat\presentation\screens\group_arena_page.dart:30:8 - undefined_class
+  error - The name 'GroupMessageModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\group_arena_page.dart:31:8 - non_type_as_type_argument
+  error - Undefined class 'GroupMessageModel' - lib\features\chat\presentation\screens\group_arena_page.dart:68:22 - undefined_class
+  error - The property 'id' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\group_arena_page.dart:71:32 - unchecked_use_of_nullable_value
+  error - The property 'id' can't be unconditionally accessed because the receiver can be 'null' - lib\features\chat\presentation\screens\group_arena_page.dart:100:37 - unchecked_use_of_nullable_value
+  error - The name 'GroupModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\group_arena_page.dart:117:54 - non_type_as_type_argument
+  error - Undefined class 'GroupMessageModel' - lib\features\chat\presentation\screens\group_arena_page.dart:239:30 - undefined_class
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\chat\presentation\screens\group_settings_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/group_service.dart' - lib\features\chat\presentation\screens\group_settings_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/user_search_service.dart' - lib\features\chat\presentation\screens\group_settings_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/group_model.dart' - lib\features\chat\presentation\screens\group_settings_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\chat\presentation\screens\group_settings_page.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'GroupModel' - lib\features\chat\presentation\screens\group_settings_page.dart:21:9 - undefined_class
+  error - The method 'GroupService' isn't defined for the type '_GroupSettingsPageState' - lib\features\chat\presentation\screens\group_settings_page.dart:30:25 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_GroupSettingsPageState' - lib\features\chat\presentation\screens\group_settings_page.dart:31:24 - undefined_method
+  error - The method 'UserSearchService' isn't defined for the type '_GroupSettingsPageState' - lib\features\chat\presentation\screens\group_settings_page.dart:32:30 - undefined_method
+  error - Undefined class 'GroupModel' - lib\features\chat\presentation\screens\group_settings_page.dart:54:8 - undefined_class
+  error - Undefined name 'GroupModel' - lib\features\chat\presentation\screens\group_settings_page.dart:140:38 - undefined_identifier
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\chat\presentation\screens\group_settings_page.dart:181:10 - non_type_as_type_argument
+  error - Undefined class 'GroupMemberModel' - lib\features\chat\presentation\screens\group_settings_page.dart:331:27 - undefined_class
+  error - Target of URI doesn't exist: '../../models/chat_model.dart' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../screens/Chat/chat_arena_page.dart' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../screens/Profile/user_profile_page.dart' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../screens/Profile/fullscreen_photo_page.dart' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'ChatModel' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:13:9 - undefined_class
+  error - The method 'ChatArenaPage' isn't defined for the type 'ChatListItemWidget' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:37:25 - undefined_method
+  error - The method 'UserProfilePage' isn't defined for the type 'ChatListItemWidget' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:50:25 - undefined_method
+  error - The method 'FullScreenPhotoPage' isn't defined for the type 'ChatListItemWidget' - lib\features\chat\presentation\widgets\chat_list_item_widget.dart:58:25 - undefined_method
+  error - Target of URI doesn't exist: '../../models/message_model.dart' - lib\features\chat\presentation\widgets\message_bubble_widget.dart:2:8 - uri_does_not_exist
+  error - Undefined class 'MessageModel' - lib\features\chat\presentation\widgets\message_bubble_widget.dart:8:9 - undefined_class
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\circle\data\datasources\circle_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\circle\data\datasources\circle_service.dart:15:36 - undefined_identifier
+  error - Target of URI doesn't exist: '../../services/post_service.dart' - lib\features\circle\presentation\screens\circle_feed_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/post_model.dart' - lib\features\circle\presentation\screens\circle_feed_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../widgets/post_card_widget.dart' - lib\features\circle\presentation\screens\circle_feed_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../create_post_page.dart' - lib\features\circle\presentation\screens\circle_feed_page.dart:5:8 - uri_does_not_exist
+  error - The method 'PostService' isn't defined for the type '_CircleFeedPageState' - lib\features\circle\presentation\screens\circle_feed_page.dart:22:24 - undefined_method
+  error - The name 'PostModel' isn't a type, so it can't be used as a type argument - lib\features\circle\presentation\screens\circle_feed_page.dart:23:8 - non_type_as_type_argument
+  error - The method 'PostCardWidget' isn't defined for the type '_CircleFeedPageState' - lib\features\circle\presentation\screens\circle_feed_page.dart:80:26 - undefined_method
+  error - The method 'CreatePostPage' isn't defined for the type '_CircleFeedPageState' - lib\features\circle\presentation\screens\circle_feed_page.dart:94:35 - undefined_method
+  error - Target of URI doesn't exist: '../../models/circle_member_model.dart' - lib\features\circle\presentation\screens\circle_member_tile.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../screens/Profile/user_profile_page.dart' - lib\features\circle\presentation\screens\circle_member_tile.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../screens/Profile/fullscreen_photo_page.dart' - lib\features\circle\presentation\screens\circle_member_tile.dart:5:8 - uri_does_not_exist
+  error - Undefined class 'CircleMemberModel' - lib\features\circle\presentation\screens\circle_member_tile.dart:10:9 - undefined_class
+  error - The method 'UserProfilePage' isn't defined for the type 'CircleMemberTile' - lib\features\circle\presentation\screens\circle_member_tile.dart:23:41 - undefined_method
+  error - The method 'FullScreenPhotoPage' isn't defined for the type 'CircleMemberTile' - lib\features\circle\presentation\screens\circle_member_tile.dart:30:25 - undefined_method
+  error - Target of URI doesn't exist: '../../services/circle_service.dart' - lib\features\circle\presentation\screens\circle_members_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/circle_member_model.dart' - lib\features\circle\presentation\screens\circle_members_page.dart:3:8 - uri_does_not_exist
+  error - The method 'CircleService' isn't defined for the type '_CircleMembersPageState' - lib\features\circle\presentation\screens\circle_members_page.dart:25:26 - undefined_method
+  error - The name 'CircleMemberModel' isn't a type, so it can't be used as a type argument - lib\features\circle\presentation\screens\circle_members_page.dart:30:8 - non_type_as_type_argument
+  error - The name 'CircleMemberModel' isn't a type, so it can't be used as a type argument - lib\features\circle\presentation\screens\circle_members_page.dart:31:8 - non_type_as_type_argument
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\circle\presentation\screens\circle_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/circle_service.dart' - lib\features\circle\presentation\screens\circle_page.dart:3:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_CirclePageState' - lib\features\circle\presentation\screens\circle_page.dart:22:24 - undefined_method
+  error - The method 'CircleService' isn't defined for the type '_CirclePageState' - lib\features\circle\presentation\screens\circle_page.dart:23:26 - undefined_method
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\follow\data\datasources\follow_service.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../models/user_search_model.dart' - lib\features\follow\data\datasources\follow_service.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\follow\data\datasources\follow_service.dart:9:36 - undefined_identifier
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\follow\data\datasources\follow_service.dart:102:15 - non_type_as_type_argument
+  error - Undefined name 'UserSearchModel' - lib\features\follow\data\datasources\follow_service.dart:127:26 - undefined_identifier
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\follow\data\datasources\follow_service.dart:135:15 - non_type_as_type_argument
+  error - Undefined name 'UserSearchModel' - lib\features\follow\data\datasources\follow_service.dart:160:26 - undefined_identifier
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\follow\presentation\widgets\follow_button_widget.dart:2:8 - uri_does_not_exist
+  error - The method 'FollowService' isn't defined for the type '_FollowButtonWidgetState' - lib\features\follow\presentation\widgets\follow_button_widget.dart:25:26 - undefined_method
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Profile/user_profile_page.dart' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:4:8 - uri_does_not_exist
+  error - Undefined class 'UserSearchModel' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:11:9 - undefined_class
+  error - The method 'FollowService' isn't defined for the type 'UserListItemWidget' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:51:15 - undefined_method
+  error - The method 'UserProfilePage' isn't defined for the type 'UserListItemWidget' - lib\features\follow\presentation\widgets\user_list_item_widget.dart:114:35 - undefined_method
+  error - Target of URI doesn't exist: '../models/post_model.dart' - lib\features\home\presentation\provider\feed_provider.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/post_service.dart' - lib\features\home\presentation\provider\feed_provider.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'PostService' - lib\features\home\presentation\provider\feed_provider.dart:6:9 - undefined_class
+  error - The method 'PostService' isn't defined for the type 'FeedProvider' - lib\features\home\presentation\provider\feed_provider.dart:6:36 - undefined_method
+  error - The name 'PostModel' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\provider\feed_provider.dart:8:14 - non_type_as_type_argument
+  error - The name 'PostModel' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\provider\feed_provider.dart:14:8 - non_type_as_type_argument
+  error - The property 'id' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\provider\feed_provider.dart:53:56 - unchecked_use_of_nullable_value
+  error - The property 'id' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\provider\feed_provider.dart:74:37 - unchecked_use_of_nullable_value
+  error - Target of URI doesn't exist: '../providers/feed_provider.dart' - lib\features\home\presentation\screens\home_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'Chat/chat_list_page.dart' - lib\features\home\presentation\screens\home_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../widgets/post_card_widget.dart' - lib\features\home\presentation\screens\home_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../widgets/custom_bottom_nav_bar.dart' - lib\features\home\presentation\screens\home_page.dart:7:8 - uri_does_not_exist
+  error - The name 'FeedProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\screens\home_page.dart:27:20 - non_type_as_type_argument
+  error - The name 'FeedProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\screens\home_page.dart:34:22 - non_type_as_type_argument
+  error - The name 'FeedProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\screens\home_page.dart:59:22 - non_type_as_type_argument
+  error - The name 'ChatListPage' isn't a class - lib\features\home\presentation\screens\home_page.dart:70:62 - creation_with_non_type
+  error - The method 'CustomBottomNavBar' isn't defined for the type '_MyHomePageState' - lib\features\home\presentation\screens\home_page.dart:110:28 - undefined_method
+  error - The name 'FeedProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\screens\home_page.dart:118:21 - non_type_as_type_argument
+  error - The property 'homePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:120:18 - unchecked_use_of_nullable_value
+  error - The property 'isHomeLoading' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:120:44 - unchecked_use_of_nullable_value
+  error - The property 'homePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:124:18 - unchecked_use_of_nullable_value
+  error - The method 'loadHomeFeed' can't be unconditionally invoked because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:142:33 - unchecked_use_of_nullable_value
+  error - The property 'homePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:146:29 - unchecked_use_of_nullable_value
+  error - The property 'hasMoreHomePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:146:54 - unchecked_use_of_nullable_value
+  error - The property 'homePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:148:33 - unchecked_use_of_nullable_value
+  error - The method 'PostCardWidget' isn't defined for the type '_MyHomePageState' - lib\features\home\presentation\screens\home_page.dart:154:22 - undefined_method
+  error - The property 'homePosts' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:155:28 - unchecked_use_of_nullable_value
+  error - The method 'loadHomeFeed' can't be unconditionally invoked because the receiver can be 'null' - lib\features\home\presentation\screens\home_page.dart:156:43 - unchecked_use_of_nullable_value
+  error - Target of URI doesn't exist: '../providers/auth_provider.dart' - lib\features\home\presentation\widgets\home_drawer.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../screens/Circle/circle_page.dart' - lib\features\home\presentation\widgets\home_drawer.dart:5:8 - uri_does_not_exist
+  error - The name 'AuthProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\widgets\home_drawer.dart:24:25 - non_type_as_type_argument
+  error - The property 'profile' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\widgets\home_drawer.dart:26:34 - unchecked_use_of_nullable_value
+  error - The property 'user' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\widgets\home_drawer.dart:27:31 - unchecked_use_of_nullable_value
+  error - The property 'isLoading' can't be unconditionally accessed because the receiver can be 'null' - lib\features\home\presentation\widgets\home_drawer.dart:28:36 - unchecked_use_of_nullable_value
+  error - The name 'CirclePage' isn't a class - lib\features\home\presentation\widgets\home_drawer.dart:126:53 - creation_with_non_type
+  error - The name 'AuthProvider' isn't a type, so it can't be used as a type argument - lib\features\home\presentation\widgets\home_drawer.dart:205:46 - non_type_as_type_argument
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\post\data\datasources\post_service.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:22:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:23:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:45:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:49:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:68:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:69:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:88:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:89:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:125:29 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:128:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:136:14 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:155:27 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:160:39 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:168:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:183:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:192:22 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:194:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:200:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:213:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:230:22 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:231:13 - undefined_identifier
+  error - Target of URI doesn't exist: '../../services/post_service.dart' - lib\features\post\presentation\screens\create_post_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\post\presentation\screens\create_post_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\post\presentation\screens\create_post_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/profile_service.dart' - lib\features\post\presentation\screens\create_post_page.dart:7:8 - uri_does_not_exist
+  error - The method 'PostService' isn't defined for the type '_CreatePostPageState' - lib\features\post\presentation\screens\create_post_page.dart:25:24 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_CreatePostPageState' - lib\features\post\presentation\screens\create_post_page.dart:26:24 - undefined_method
+  error - The method 'ProfileService' isn't defined for the type '_CreatePostPageState' - lib\features\post\presentation\screens\create_post_page.dart:27:27 - undefined_method
+  error - Undefined class 'ProfileModel' - lib\features\post\presentation\screens\create_post_page.dart:29:3 - undefined_class
+  error - Undefined name 'PostService' - lib\features\post\presentation\screens\create_post_page.dart:68:18 - undefined_identifier
+  error - Target of URI doesn't exist: '../models/post_model.dart' - lib\features\post\presentation\widgets\post_card_widget.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/follow_service.dart' - lib\features\post\presentation\widgets\post_card_widget.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/post_service.dart' - lib\features\post\presentation\widgets\post_card_widget.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../services/auth_service.dart' - lib\features\post\presentation\widgets\post_card_widget.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../providers/feed_provider.dart' - lib\features\post\presentation\widgets\post_card_widget.dart:8:8 - uri_does_not_exist
+  error - Undefined class 'PostModel' - lib\features\post\presentation\widgets\post_card_widget.dart:11:9 - undefined_class
+  error - The method 'FollowService' isn't defined for the type '_PostCardWidgetState' - lib\features\post\presentation\widgets\post_card_widget.dart:27:26 - undefined_method
+  error - The method 'PostService' isn't defined for the type '_PostCardWidgetState' - lib\features\post\presentation\widgets\post_card_widget.dart:28:24 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_PostCardWidgetState' - lib\features\post\presentation\widgets\post_card_widget.dart:29:24 - undefined_method
+  error - The name 'FeedProvider' isn't a type, so it can't be used as a type argument - lib\features\post\presentation\widgets\post_card_widget.dart:90:24 - non_type_as_type_argument
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\profile\data\datasources\profile_service.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:23:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:63:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:111:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:152:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:163:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:179:27 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:185:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:197:30 - undefined_identifier
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\profile\presentation\screens\account_information_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\profile\presentation\screens\account_information_page.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'ProfileModel' - lib\features\profile\presentation\screens\account_information_page.dart:6:9 - undefined_class
+  error - Undefined class 'AuthService' - lib\features\profile\presentation\screens\account_information_page.dart:7:9 - undefined_class
+  error - The method 'AuthService' isn't defined for the type 'AccountInformationPage' - lib\features\profile\presentation\screens\account_information_page.dart:7:36 - undefined_method
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\profile\presentation\screens\edit_profile_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/profile_service.dart' - lib\features\profile\presentation\screens\edit_profile_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\profile\presentation\screens\edit_profile_page.dart:7:8 - uri_does_not_exist
+  error - Undefined class 'ProfileModel' - lib\features\profile\presentation\screens\edit_profile_page.dart:13:9 - undefined_class
+  error - The method 'ProfileService' isn't defined for the type '_EditProfilePageState' - lib\features\profile\presentation\screens\edit_profile_page.dart:23:27 - undefined_method
+  error - The method 'AuthService' isn't defined for the type '_EditProfilePageState' - lib\features\profile\presentation\screens\edit_profile_page.dart:24:24 - undefined_method
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\profile\presentation\screens\followers_list_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\profile\presentation\screens\followers_list_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Follow/user_list_item_widget.dart' - lib\features\profile\presentation\screens\followers_list_page.dart:4:8 - uri_does_not_exist
+  error - The method 'FollowService' isn't defined for the type '_FollowersListPageState' - lib\features\profile\presentation\screens\followers_list_page.dart:24:26 - undefined_method
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\profile\presentation\screens\followers_list_page.dart:25:8 - non_type_as_type_argument
+  error - The method 'UserListItemWidget' isn't defined for the type '_FollowersListPageState' - lib\features\profile\presentation\screens\followers_list_page.dart:140:26 - undefined_method
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\profile\presentation\screens\following_list_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\profile\presentation\screens\following_list_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Follow/user_list_item_widget.dart' - lib\features\profile\presentation\screens\following_list_page.dart:4:8 - uri_does_not_exist
+  error - The method 'FollowService' isn't defined for the type '_FollowingListPageState' - lib\features\profile\presentation\screens\following_list_page.dart:19:26 - undefined_method
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\profile\presentation\screens\following_list_page.dart:20:8 - non_type_as_type_argument
+  error - The method 'UserListItemWidget' isn't defined for the type '_FollowingListPageState' - lib\features\profile\presentation\screens\following_list_page.dart:135:26 - undefined_method
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\profile\presentation\screens\profile_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/profile_service.dart' - lib\features\profile\presentation\screens\profile_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\profile\presentation\screens\profile_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\profile\presentation\screens\profile_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/post_service.dart' - lib\features\profile\presentation\screens\profile_page.dart:11:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/post_model.dart' - lib\features\profile\presentation\screens\profile_page.dart:12:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../widgets/post_card_widget.dart' - lib\features\profile\presentation\screens\profile_page.dart:13:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_ProfilePageState' - lib\features\profile\presentation\screens\profile_page.dart:26:24 - undefined_method
+  error - The method 'ProfileService' isn't defined for the type '_ProfilePageState' - lib\features\profile\presentation\screens\profile_page.dart:27:27 - undefined_method
+  error - The method 'FollowService' isn't defined for the type '_ProfilePageState' - lib\features\profile\presentation\screens\profile_page.dart:28:26 - undefined_method
+  error - The method 'PostService' isn't defined for the type '_ProfilePageState' - lib\features\profile\presentation\screens\profile_page.dart:29:24 - undefined_method
+  error - Undefined class 'ProfileModel' - lib\features\profile\presentation\screens\profile_page.dart:33:3 - undefined_class
+  error - The name 'PostModel' isn't a type, so it can't be used as a type argument - lib\features\profile\presentation\screens\profile_page.dart:34:8 - non_type_as_type_argument
+  error - The method 'PostCardWidget' isn't defined for the type '_ProfilePageState' - lib\features\profile\presentation\screens\profile_page.dart:166:35 - undefined_method
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\profile\presentation\screens\settings_drawer.dart:2:8 - uri_does_not_exist
+  error - Undefined class 'ProfileModel' - lib\features\profile\presentation\screens\settings_drawer.dart:7:9 - undefined_class
+  error - Target of URI doesn't exist: '../../services/auth_service.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/user_search_service.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../services/follow_service.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/profile_model.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Follow/follow_button_widget.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Chat/chat_arena_page.dart' - lib\features\profile\presentation\screens\user_profile_page.dart:10:8 - uri_does_not_exist
+  error - The method 'AuthService' isn't defined for the type '_UserProfilePageState' - lib\features\profile\presentation\screens\user_profile_page.dart:25:24 - undefined_method
+  error - The method 'UserSearchService' isn't defined for the type '_UserProfilePageState' - lib\features\profile\presentation\screens\user_profile_page.dart:26:30 - undefined_method
+  error - The method 'FollowService' isn't defined for the type '_UserProfilePageState' - lib\features\profile\presentation\screens\user_profile_page.dart:27:26 - undefined_method
+  error - Undefined class 'ProfileModel' - lib\features\profile\presentation\screens\user_profile_page.dart:31:3 - undefined_class
+  error - The method 'FollowButtonWidget' isn't defined for the type '_UserProfilePageState' - lib\features\profile\presentation\screens\user_profile_page.dart:273:26 - undefined_method
+  error - The method 'ChatArenaPage' isn't defined for the type '_UserProfilePageState' - lib\features\profile\presentation\screens\user_profile_page.dart:286:43 - undefined_method
+  error - Target of URI doesn't exist: '../config/supabase_config.dart' - lib\features\search\data\datasources\user_search_service.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../models/profile_model.dart' - lib\features\search\data\datasources\user_search_service.dart:4:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\search\data\datasources\user_search_service.dart:10:36 - undefined_identifier
+  error - The name 'ProfileModel' isn't a type, so it can't be used as a type argument - lib\features\search\data\datasources\user_search_service.dart:34:10 - non_type_as_type_argument
+  error - Undefined name 'ProfileModel' - lib\features\search\data\datasources\user_search_service.dart:46:14 - undefined_identifier
+  error - Target of URI doesn't exist: '../../services/user_search_service.dart' - lib\features\search\presentation\screens\search_page.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\search\presentation\screens\search_page.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'user_search_result_widget.dart' - lib\features\search\presentation\screens\search_page.dart:4:8 - uri_does_not_exist
+  error - The method 'UserSearchService' isn't defined for the type '_SearchPageState' - lib\features\search\presentation\screens\search_page.dart:17:26 - undefined_method
+  error - The name 'UserSearchModel' isn't a type, so it can't be used as a type argument - lib\features\search\presentation\screens\search_page.dart:20:8 - non_type_as_type_argument
+  error - The method 'UserSearchResultWidget' isn't defined for the type '_SearchPageState' - lib\features\search\presentation\screens\search_page.dart:185:30 - undefined_method
+  error - Target of URI doesn't exist: '../../models/user_search_model.dart' - lib\features\search\presentation\widgets\user_search_result_widget.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../Follow/user_list_item_widget.dart' - lib\features\search\presentation\widgets\user_search_result_widget.dart:3:8 - uri_does_not_exist
+  error - Undefined class 'UserSearchModel' - lib\features\search\presentation\widgets\user_search_result_widget.dart:9:9 - undefined_class
+  error - The method 'UserListItemWidget' isn't defined for the type 'UserSearchResultWidget' - lib\features\search\presentation\widgets\user_search_result_widget.dart:15:12 - undefined_method
+  error - Target of URI doesn't exist: 'config/supabase_config.dart' - lib\main.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'widgets/auth_gate.dart' - lib\main.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/home_page.dart' - lib\main.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/Profile/profile_page.dart' - lib\main.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/Search/search_page.dart' - lib\main.dart:6:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/splash/splash_screen.dart' - lib\main.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'services/first_launch_service.dart' - lib\main.dart:8:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/create_post_page.dart' - lib\main.dart:9:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'screens/home_page.dart' - lib\main.dart:12:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'providers/auth_provider.dart' - lib\main.dart:15:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'providers/feed_provider.dart' - lib\main.dart:16:8 - uri_does_not_exist
+  error - Undefined name 'SupabaseConfig' - lib\main.dart:26:9 - undefined_identifier
+  error - The function 'FirstLaunchService' isn't defined - lib\main.dart:28:31 - undefined_function
+  error - The function 'AuthProvider' isn't defined - lib\main.dart:33:47 - undefined_function
+  error - The function 'FeedProvider' isn't defined - lib\main.dart:34:47 - undefined_function
+  error - The name 'EnhancedSplashScreen' isn't a class - lib\main.dart:88:35 - creation_with_non_type
+  error - The name 'AuthGate' isn't a class - lib\main.dart:88:66 - creation_with_non_type
+  error - The name 'MyHomePage' isn't a class - lib\main.dart:91:37 - creation_with_non_type
+  error - The name 'ProfilePage' isn't a class - lib\main.dart:92:40 - creation_with_non_type
+  error - The name 'SearchPage' isn't a class - lib\main.dart:93:39 - creation_with_non_type
+  error - The name 'CreatePostPage' isn't a class - lib\main.dart:94:44 - creation_with_non_type
 
