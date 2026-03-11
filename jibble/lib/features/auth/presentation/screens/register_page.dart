@@ -1,5 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/core/theme/app_colors.dart';
+import 'package:jibble/core/theme/app_radius.dart';
+import 'package:jibble/core/theme/app_spacing.dart';
+import 'package:jibble/core/theme/text_styles.dart';
 
 /// Register Page
 ///
@@ -76,20 +80,20 @@ class _RegisterPageState extends State<RegisterPage> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.purple.shade400, Colors.blue.shade400],
+            colors: [AppColors.primaryDark, AppColors.primaryLight],
           ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Card(
                 elevation: 8,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.circularXl,
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(AppSpacing.xl),
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -97,40 +101,38 @@ class _RegisterPageState extends State<RegisterPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Logo/Title
-                        Icon(
-                          Icons.person_add_outlined,
-                          size: 64,
-                          color: Colors.purple.shade600,
+                        Text(
+                          'Jibble',
+                          style: AppTextStyles.brandTitle.copyWith(
+                            color: AppColors.primary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           'Create Account',
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade800,
-                              ),
+                          style: AppTextStyles.heading1.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           'Sign up to get started',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey.shade600),
+                          style: AppTextStyles.bodyText.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: AppSpacing.xl),
 
                         // Email field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Email',
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.email_outlined),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -142,18 +144,15 @@ class _RegisterPageState extends State<RegisterPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
 
                         // Password field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Password',
-                            prefixIcon: const Icon(Icons.lock_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.lock_outlined),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -165,18 +164,15 @@ class _RegisterPageState extends State<RegisterPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
 
                         // Confirm Password field
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Confirm Password',
-                            prefixIcon: const Icon(Icons.lock_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            prefixIcon: Icon(Icons.lock_outlined),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -188,32 +184,34 @@ class _RegisterPageState extends State<RegisterPage> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: AppSpacing.lg),
 
                         // Error message
                         if (_errorMessage != null)
                           Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            margin: const EdgeInsets.only(
+                              bottom: AppSpacing.md,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.shade200),
+                              color: AppColors.error.withValues(alpha: 0.1),
+                              borderRadius: AppRadius.circularMd,
+                              border: Border.all(
+                                color: AppColors.error.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.error_outline,
-                                  color: Colors.red.shade700,
+                                  color: AppColors.error,
                                   size: 20,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Text(
                                     _errorMessage!,
-                                    style: TextStyle(
-                                      color: Colors.red.shade700,
-                                    ),
+                                    style: TextStyle(color: AppColors.error),
                                   ),
                                 ),
                               ],
@@ -223,27 +221,29 @@ class _RegisterPageState extends State<RegisterPage> {
                         // Success message
                         if (_successMessage != null)
                           Container(
-                            padding: const EdgeInsets.all(12),
-                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            margin: const EdgeInsets.only(
+                              bottom: AppSpacing.md,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.green.shade200),
+                              color: AppColors.success.withValues(alpha: 0.1),
+                              borderRadius: AppRadius.circularMd,
+                              border: Border.all(
+                                color: AppColors.success.withValues(alpha: 0.3),
+                              ),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.check_circle_outline,
-                                  color: Colors.green.shade700,
+                                  color: AppColors.success,
                                   size: 20,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Text(
                                     _successMessage!,
-                                    style: TextStyle(
-                                      color: Colors.green.shade700,
-                                    ),
+                                    style: TextStyle(color: AppColors.success),
                                   ),
                                 ),
                               ],
@@ -254,11 +254,10 @@ class _RegisterPageState extends State<RegisterPage> {
                         ElevatedButton(
                           onPressed: _isLoading ? null : _handleRegister,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
                             ),
-                            backgroundColor: Colors.purple.shade600,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                           ),
                           child: _isLoading
@@ -280,7 +279,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                 ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.md),
 
                         // Back to login link
                         Row(
@@ -288,12 +287,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           children: [
                             Text(
                               'Already have an account? ',
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style: TextStyle(color: AppColors.textSecondary),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                              ),
                               child: const Text(
                                 'Sign In',
                                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -313,4 +315,3 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
-

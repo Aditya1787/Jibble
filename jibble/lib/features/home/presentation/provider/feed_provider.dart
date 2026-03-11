@@ -1,17 +1,25 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/post/data/models/post_model.dart';
-import 'package:jibble/features/post/data/datasources/post_service.dart';
+import 'package:jibble/features/post/domain/entities/post_entity.dart';
+import 'package:jibble/features/home/domain/usecases/get_home_feed_usecase.dart';
+import 'package:jibble/features/post/domain/usecases/toggle_like_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 
 class FeedProvider extends ChangeNotifier {
-  final PostService _postService = PostService();
+  late final GetHomeFeedUseCase _getHomeFeedUseCase;
+  late final ToggleLikeUseCase _toggleLikeUseCase;
 
-  final List<PostModel> _homePosts = [];
+  final List<PostEntity> _homePosts = [];
   bool _isHomeLoading = false;
   bool _hasMoreHomePosts = true;
   int _homePage = 0;
   final int _limit = 15;
 
-  List<PostModel> get homePosts => _homePosts;
+  FeedProvider() {
+    _getHomeFeedUseCase = sl<GetHomeFeedUseCase>();
+    _toggleLikeUseCase = sl<ToggleLikeUseCase>();
+  }
+
+  List<PostEntity> get homePosts => _homePosts;
   bool get isHomeLoading => _isHomeLoading;
   bool get hasMoreHomePosts => _hasMoreHomePosts;
 
@@ -28,7 +36,7 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final newPosts = await _postService.fetchHomeFeedPaginated(
+      final newPosts = await _getHomeFeedUseCase(
         page: _homePage,
         limit: _limit,
       );
@@ -62,7 +70,7 @@ class FeedProvider extends ChangeNotifier {
         notifyListeners();
       }
 
-      await _postService.toggleLike(postId, isCurrentlyLiked);
+      await _toggleLikeUseCase(postId, isCurrentlyLiked);
     } catch (e) {
       // Revert if failed
       debugPrint('Error toggling like: \$e');
@@ -75,4 +83,3 @@ class FeedProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

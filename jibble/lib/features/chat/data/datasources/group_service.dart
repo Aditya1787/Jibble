@@ -1,6 +1,6 @@
 ﻿import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/chat/data/models/group_model.dart';
 import 'package:jibble/features/chat/data/models/group_message_model.dart';
 
@@ -18,7 +18,23 @@ class GroupService {
   final SupabaseClient _supabase = supabase;
   final Map<String, RealtimeChannel> _subscriptions = {};
 
+  final StreamController<List<GroupModel>> _userGroupsController =
+      StreamController<List<GroupModel>>.broadcast();
+
   String? get _currentUserId => _supabase.auth.currentUser?.id;
+
+  Stream<List<GroupModel>> getUserGroupsStream() =>
+      _userGroupsController.stream;
+
+  Stream<List<GroupMessageModel>> getGroupMessagesStream(String groupId) {
+    return _supabase
+        .from('group_messages')
+        .stream(primaryKey: ['id'])
+        .eq('group_id', groupId)
+        .map(
+          (event) => event.map((e) => GroupMessageModel.fromJson(e)).toList(),
+        );
+  }
 
   // â”€â”€ Create group â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -60,6 +76,8 @@ class GroupService {
   }
 
   // â”€â”€ Fetch groups â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  Future<List<GroupModel>> getUserGroups() async => getMyGroups();
 
   Future<List<GroupModel>> getMyGroups() async {
     final uid = _currentUserId;
@@ -222,6 +240,9 @@ class GroupService {
 
   // â”€â”€ Messaging â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+  Future<List<GroupMessageModel>> getGroupMessages(String groupId) async =>
+      getMessages(groupId);
+
   Future<List<GroupMessageModel>> getMessages(String groupId) async {
     final rows = await _supabase
         .from('group_messages')
@@ -234,6 +255,11 @@ class GroupService {
 
     return (rows as List).map((r) => GroupMessageModel.fromJson(r)).toList();
   }
+
+  Future<GroupMessageModel> sendGroupMessage(
+    String groupId,
+    String content,
+  ) async => sendMessage(groupId: groupId, content: content);
 
   Future<GroupMessageModel> sendMessage({
     required String groupId,
@@ -318,4 +344,3 @@ class GroupService {
     return group.members.any((m) => m.userId == uid && m.isOwner);
   }
 }
-

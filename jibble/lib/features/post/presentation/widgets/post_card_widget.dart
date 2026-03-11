@@ -1,14 +1,17 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jibble/features/post/data/models/post_model.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
-import 'package:jibble/features/post/data/datasources/post_service.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/features/post/domain/entities/post_entity.dart';
+import 'package:jibble/features/follow/domain/usecases/is_following_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/follow_user_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/unfollow_user_usecase.dart';
+import 'package:jibble/features/post/domain/usecases/delete_post_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/home/presentation/provider/feed_provider.dart';
 
 class PostCardWidget extends StatefulWidget {
-  final PostModel post;
+  final PostEntity post;
   final VoidCallback? onPostDeleted;
   final VoidCallback? onPostUpdated;
 
@@ -24,9 +27,11 @@ class PostCardWidget extends StatefulWidget {
 }
 
 class _PostCardWidgetState extends State<PostCardWidget> {
-  final _followService = FollowService();
-  final _postService = PostService();
-  final _authService = AuthService();
+  late final IsFollowingUseCase _isFollowingUseCase;
+  late final FollowUserUseCase _followUserUseCase;
+  late final UnfollowUserUseCase _unfollowUserUseCase;
+  late final DeletePostUseCase _deletePostUseCase;
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
 
   bool _isFollowing = false;
   bool _isLoadingFollow = false;
@@ -34,16 +39,22 @@ class _PostCardWidgetState extends State<PostCardWidget> {
   @override
   void initState() {
     super.initState();
+    _isFollowingUseCase = sl<IsFollowingUseCase>();
+    _followUserUseCase = sl<FollowUserUseCase>();
+    _unfollowUserUseCase = sl<UnfollowUserUseCase>();
+    _deletePostUseCase = sl<DeletePostUseCase>();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
     _checkFollowStatus();
   }
 
   Future<void> _checkFollowStatus() async {
+    final currentUser = _getCurrentUserUseCase();
     if (widget.post.userId == null) return; // Anonymous post
-    if (widget.post.userId == _authService.currentUser?.id) return; // Own post
+    if (widget.post.userId == currentUser?.id) return; // Own post
 
     setState(() => _isLoadingFollow = true);
     try {
-      final isFollowing = await _followService.isFollowing(widget.post.userId!);
+      final isFollowing = await _isFollowingUseCase(widget.post.userId!);
       if (mounted) {
         setState(() => _isFollowing = isFollowing);
       }
@@ -65,9 +76,9 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
     try {
       if (_isFollowing) {
-        await _followService.unfollowUser(widget.post.userId!);
+        await _unfollowUserUseCase(widget.post.userId!);
       } else {
-        await _followService.followUser(widget.post.userId!);
+        await _followUserUseCase(widget.post.userId!);
       }
       setState(() {
         _isFollowing = !_isFollowing;
@@ -94,7 +105,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
   }
 
   void _showOptions() {
-    final isOwnPost = widget.post.userId == _authService.currentUser?.id;
+    final currentUser = _getCurrentUserUseCase();
+    final isOwnPost = widget.post.userId == currentUser?.id;
 
     showModalBottomSheet(
       context: context,
@@ -112,7 +124,7 @@ class _PostCardWidgetState extends State<PostCardWidget> {
                   ),
                   onTap: () async {
                     Navigator.pop(context);
-                    await _postService.deletePost(widget.post.id);
+                    await _deletePostUseCase(widget.post.id);
                     widget.onPostDeleted?.call();
                   },
                 ),
@@ -147,7 +159,8 @@ class _PostCardWidgetState extends State<PostCardWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwnPost = widget.post.userId == _authService.currentUser?.id;
+    final currentUser = _getCurrentUserUseCase();
+    final isOwnPost = widget.post.userId == currentUser?.id;
     final isAnonymous = widget.post.type == 'confession';
 
     return Container(
@@ -326,4 +339,3 @@ class _PostCardWidgetState extends State<PostCardWidget> {
     );
   }
 }
-

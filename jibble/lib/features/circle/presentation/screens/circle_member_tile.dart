@@ -1,13 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jibble/features/circle/data/models/circle_member_model.dart';
+import 'package:jibble/features/circle/domain/entities/circle_member_entity.dart';
 import 'package:jibble/features/profile/presentation/screens/user_profile_page.dart';
 import 'package:jibble/features/profile/presentation/screens/fullscreen_photo_page.dart';
 
 /// A single member tile inside the Circle members list.
 /// Tapping the avatar opens a fullscreen photo; tapping the tile opens the profile.
 class CircleMemberTile extends StatelessWidget {
-  final CircleMemberModel member;
+  final CircleMemberEntity member;
   final bool isCurrentUser;
 
   const CircleMemberTile({
@@ -185,4 +185,3 @@ class CircleMemberTile extends StatelessWidget {
     );
   }
 }
-

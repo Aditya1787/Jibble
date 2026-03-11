@@ -1,42 +1,21 @@
-class PostModel {
-  final String id;
-  final String? userId; // Null for anonymous confessions
-  final String type; // 'standard', 'event', 'confession'
-  final String? caption;
-  final String? imageUrl;
-  final String? collegeName;
-  final DateTime createdAt;
+import 'package:jibble/features/post/domain/entities/post_entity.dart';
 
-  // Joined from profiles
-  final String? username;
-  final String? fullName;
-  final String? profilePictureUrl;
-
-  // Computed counters
-  final int likesCount;
-  final int commentsCount;
-
-  // Has the current user liked it?
-  final bool isLikedByMe;
-
-  // Who recently liked it (for UI)
-  final String? recentLikerUsername;
-
+class PostModel extends PostEntity {
   PostModel({
-    required this.id,
-    this.userId,
-    required this.type,
-    this.caption,
-    this.imageUrl,
-    this.collegeName,
-    required this.createdAt,
-    this.username,
-    this.fullName,
-    this.profilePictureUrl,
-    this.likesCount = 0,
-    this.commentsCount = 0,
-    this.isLikedByMe = false,
-    this.recentLikerUsername,
+    required super.id,
+    super.userId,
+    required super.type,
+    super.caption,
+    super.imageUrl,
+    super.collegeName,
+    required super.createdAt,
+    super.username,
+    super.fullName,
+    super.profilePictureUrl,
+    super.likesCount = 0,
+    super.commentsCount = 0,
+    super.isLikedByMe = false,
+    super.recentLikerUsername,
   });
 
   factory PostModel.fromJson(
@@ -105,6 +84,7 @@ class PostModel {
     return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
   }
 
+  @override
   PostModel copyWith({
     String? id,
     String? userId,

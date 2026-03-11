@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/circle/data/datasources/circle_service.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/circle/domain/usecases/get_current_user_college_usecase.dart';
+import 'package:jibble/features/circle/domain/usecases/get_circle_members_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/circle/presentation/screens/circle_members_page.dart';
 import 'package:jibble/features/circle/presentation/screens/circle_feed_page.dart';
 import 'package:jibble/features/circle/presentation/screens/placeholder_page.dart';
@@ -19,8 +21,9 @@ class CirclePage extends StatefulWidget {
 }
 
 class _CirclePageState extends State<CirclePage> {
-  final _authService = AuthService();
-  final _circleService = CircleService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetCurrentUserCollegeUseCase _getCurrentUserCollegeUseCase;
+  late final GetCircleMembersUseCase _getCircleMembersUseCase;
 
   static const _purple = Color(0xFF6B4CE6);
   static const _lightPurple = Color(0xFF9D7CE8);
@@ -59,7 +62,10 @@ class _CirclePageState extends State<CirclePage> {
   @override
   void initState() {
     super.initState();
-    _currentUserId = _authService.currentUser?.id;
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getCurrentUserCollegeUseCase = sl<GetCurrentUserCollegeUseCase>();
+    _getCircleMembersUseCase = sl<GetCircleMembersUseCase>();
+    _currentUserId = _getCurrentUserUseCase()?.id;
     _load();
   }
 
@@ -70,10 +76,10 @@ class _CirclePageState extends State<CirclePage> {
     });
 
     try {
-      final userId = _authService.currentUser?.id;
+      final userId = _getCurrentUserUseCase()?.id;
       if (userId == null) throw 'Not logged in';
 
-      final college = await _circleService.getCurrentUserCollege(userId);
+      final college = await _getCurrentUserCollegeUseCase(userId);
 
       if (college == null || college.trim().isEmpty) {
         if (mounted) setState(() => _isLoading = false);
@@ -81,7 +87,7 @@ class _CirclePageState extends State<CirclePage> {
       }
 
       // Only fetch count (not all members) to keep landing fast
-      final members = await _circleService.getCircleMembers(
+      final members = await _getCircleMembersUseCase(
         collegeName: college.trim(),
         excludeUserId: userId,
       );
@@ -536,4 +542,3 @@ class _FilterTab {
     required this.color,
   });
 }
-

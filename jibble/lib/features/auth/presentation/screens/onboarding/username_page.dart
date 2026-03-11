@@ -1,5 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:jibble/features/auth/presentation/screens/onboarding/date_of_birth_page.dart';
+import 'package:jibble/core/theme/app_colors.dart';
+import 'package:jibble/core/theme/app_radius.dart';
+import 'package:jibble/core/theme/app_spacing.dart';
+import 'package:jibble/core/theme/text_styles.dart';
 
 /// Username Input Page
 ///
@@ -39,9 +43,15 @@ class _UsernamePageState extends State<UsernamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Profile'),
+        title: Text(
+          'Create Profile',
+          style: AppTextStyles.heading1.copyWith(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
         elevation: 0,
-        backgroundColor: Colors.blue.shade600,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Container(
@@ -49,14 +59,17 @@ class _UsernamePageState extends State<UsernamePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade600, Colors.blue.shade50],
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.1),
+            ],
             stops: const [0.0, 0.3],
           ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -73,7 +86,7 @@ class _UsernamePageState extends State<UsernamePage> {
                       _buildProgressDot(false),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Icon
                   Container(
@@ -93,40 +106,36 @@ class _UsernamePageState extends State<UsernamePage> {
                     child: Icon(
                       Icons.person_outline,
                       size: 50,
-                      color: Colors.blue.shade600,
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Title
                   Text(
                     'Choose a Username',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading1.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
 
                   Text(
                     'This is how others will see you',
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: AppTextStyles.bodyText.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: AppSpacing.xxl),
 
                   // Form
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: AppRadius.circularXl,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -134,12 +143,9 @@ class _UsernamePageState extends State<UsernamePage> {
                           children: [
                             TextFormField(
                               controller: _usernameController,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 labelText: 'Username',
-                                prefixIcon: const Icon(Icons.alternate_email),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                                prefixIcon: Icon(Icons.alternate_email),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -160,24 +166,23 @@ class _UsernamePageState extends State<UsernamePage> {
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: AppSpacing.lg),
 
                             ElevatedButton(
                               onPressed: _isLoading ? null : _handleNext,
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                                  vertical: AppSpacing.md,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: AppRadius.circularLg,
                                 ),
-                                backgroundColor: Colors.blue.shade600,
+                                backgroundColor: AppColors.primary,
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Next',
-                                style: TextStyle(
-                                  fontSize: 16,
+                                style: AppTextStyles.bodyText.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -215,4 +220,3 @@ class _UsernamePageState extends State<UsernamePage> {
     );
   }
 }
-

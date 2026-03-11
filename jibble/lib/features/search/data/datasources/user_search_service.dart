@@ -1,5 +1,5 @@
 ﻿import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/search/data/models/user_search_model.dart';
 import 'package:jibble/features/profile/data/models/profile_model.dart';
 

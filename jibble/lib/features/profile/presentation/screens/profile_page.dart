@@ -1,15 +1,18 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/profile/data/datasources/profile_service.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/features/follow/domain/usecases/get_follower_count_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/get_following_count_usecase.dart';
+import 'package:jibble/features/post/domain/usecases/get_user_posts_usecase.dart';
 import 'package:jibble/features/profile/presentation/screens/followers_list_page.dart';
 import 'package:jibble/features/profile/presentation/screens/following_list_page.dart';
 import 'package:jibble/features/profile/presentation/screens/settings_drawer.dart';
 import 'package:jibble/features/profile/presentation/screens/edit_profile_page.dart';
-import 'package:jibble/features/post/data/datasources/post_service.dart';
-import 'package:jibble/features/post/data/models/post_model.dart';
+import 'package:jibble/features/post/domain/entities/post_entity.dart';
 import 'package:jibble/features/post/presentation/widgets/post_card_widget.dart';
 
 /// Profile Page
@@ -23,15 +26,17 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  final _authService = AuthService();
-  final _profileService = ProfileService();
-  final _followService = FollowService();
-  final _postService = PostService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final SignOutUseCase _signOutUseCase;
+  late final GetProfileUseCase _getProfileUseCase;
+  late final GetFollowerCountUseCase _getFollowerCountUseCase;
+  late final GetFollowingCountUseCase _getFollowingCountUseCase;
+  late final GetUserPostsUseCase _getUserPostsUseCase;
 
   static const _primaryColor = Color(0xFF3B6FE8);
 
-  ProfileModel? _profile;
-  List<PostModel> _userPosts = [];
+  ProfileEntity? _profile;
+  List<PostEntity> _userPosts = [];
   bool _isLoading = true;
   String? _errorMessage;
   int _followerCount = 0;
@@ -40,6 +45,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _signOutUseCase = sl<SignOutUseCase>();
+    _getProfileUseCase = sl<GetProfileUseCase>();
+    _getFollowerCountUseCase = sl<GetFollowerCountUseCase>();
+    _getFollowingCountUseCase = sl<GetFollowingCountUseCase>();
+    _getUserPostsUseCase = sl<GetUserPostsUseCase>();
     _loadProfile();
   }
 
@@ -50,12 +61,12 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     try {
-      final user = _authService.currentUser;
+      final user = _getCurrentUserUseCase();
       if (user != null) {
-        final profile = await _profileService.getProfile(user.id);
-        final followerCount = await _followService.getFollowerCount(user.id);
-        final followingCount = await _followService.getFollowingCount(user.id);
-        final posts = await _postService.fetchUserPosts(user.id);
+        final profile = await _getProfileUseCase(user.id);
+        final followerCount = await _getFollowerCountUseCase(user.id);
+        final followingCount = await _getFollowingCountUseCase(user.id);
+        final posts = await _getUserPostsUseCase(user.id);
 
         if (mounted) {
           setState(() {
@@ -79,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _handleLogout() async {
     try {
-      await _authService.signOut();
+      await _signOutUseCase();
       if (mounted) {
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
@@ -180,7 +191,7 @@ class _ProfilePageState extends State<ProfilePage> {
   // â”€â”€ Header section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   Widget _buildHeader() {
-    final user = _authService.currentUser;
+    final user = _getCurrentUserUseCase();
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -425,4 +436,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-

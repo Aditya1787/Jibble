@@ -1,31 +1,21 @@
+import '../../domain/entities/profile_entity.dart';
+
 /// User Profile Model
 ///
 /// Represents a user's profile information stored in Supabase
-class ProfileModel {
-  final String id;
-  final String? email;
-  final String username;
-  final String? name;
-  final String? bio;
-  final DateTime? dateOfBirth;
-  final String? collegeName;
-  final String? profilePictureUrl;
-  final bool profileCompleted;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  ProfileModel({
-    required this.id,
-    this.email,
-    required this.username,
-    this.name,
-    this.bio,
-    this.dateOfBirth,
-    this.collegeName,
-    this.profilePictureUrl,
-    required this.profileCompleted,
-    required this.createdAt,
-    required this.updatedAt,
+class ProfileModel extends ProfileEntity {
+  const ProfileModel({
+    required super.id,
+    super.email,
+    required super.username,
+    super.name,
+    super.bio,
+    super.dateOfBirth,
+    super.collegeName,
+    super.profilePictureUrl,
+    required super.profileCompleted,
+    required super.createdAt,
+    required super.updatedAt,
   });
 
   /// Create ProfileModel from JSON

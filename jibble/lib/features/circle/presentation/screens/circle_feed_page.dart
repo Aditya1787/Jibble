@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/post/data/datasources/post_service.dart';
-import 'package:jibble/features/post/data/models/post_model.dart';
+import 'package:jibble/features/post/domain/entities/post_entity.dart';
+import 'package:jibble/features/post/domain/usecases/get_circle_feed_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/post/presentation/widgets/post_card_widget.dart';
 import 'package:jibble/features/post/presentation/screens/create_post_page.dart';
 
@@ -19,20 +20,21 @@ class CircleFeedPage extends StatefulWidget {
 }
 
 class _CircleFeedPageState extends State<CircleFeedPage> {
-  final _postService = PostService();
-  List<PostModel> _posts = [];
+  late final GetCircleFeedUseCase _getCircleFeedUseCase;
+  List<PostEntity> _posts = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _getCircleFeedUseCase = sl<GetCircleFeedUseCase>();
     _loadPosts();
   }
 
   Future<void> _loadPosts() async {
     setState(() => _isLoading = true);
     try {
-      final posts = await _postService.fetchCircleFeed(widget.postType);
+      final posts = await _getCircleFeedUseCase(widget.postType);
       if (mounted) {
         setState(() {
           _posts = posts;
@@ -107,4 +109,3 @@ class _CircleFeedPageState extends State<CircleFeedPage> {
     );
   }
 }
-

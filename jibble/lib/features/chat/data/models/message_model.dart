@@ -1,21 +1,16 @@
+import 'package:jibble/features/chat/domain/entities/message_entity.dart';
+
 /// Message Model
 ///
 /// Represents a single chat message
-class MessageModel {
-  final String id;
-  final String conversationId;
-  final String senderId;
-  final String content;
-  final DateTime createdAt;
-  final bool isRead;
-
+class MessageModel extends MessageEntity {
   MessageModel({
-    required this.id,
-    required this.conversationId,
-    required this.senderId,
-    required this.content,
-    required this.createdAt,
-    this.isRead = false,
+    required super.id,
+    required super.conversationId,
+    required super.senderId,
+    required super.content,
+    required super.createdAt,
+    super.isRead = false,
   });
 
   /// Create a MessageModel from JSON

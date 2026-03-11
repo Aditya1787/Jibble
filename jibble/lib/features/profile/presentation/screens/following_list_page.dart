@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
+import 'package:jibble/features/follow/domain/usecases/get_following_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
 import 'package:jibble/features/follow/presentation/widgets/user_list_item_widget.dart';
 
 /// Following List Page
@@ -16,14 +17,15 @@ class FollowingListPage extends StatefulWidget {
 }
 
 class _FollowingListPageState extends State<FollowingListPage> {
-  final _followService = FollowService();
-  List<UserSearchModel> _following = [];
+  late final GetFollowingUseCase _getFollowingUseCase;
+  List<UserSearchEntity> _following = [];
   bool _isLoading = true;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _getFollowingUseCase = sl<GetFollowingUseCase>();
     _loadFollowing();
   }
 
@@ -34,7 +36,7 @@ class _FollowingListPageState extends State<FollowingListPage> {
     });
 
     try {
-      final following = await _followService.getFollowing(widget.userId);
+      final following = await _getFollowingUseCase(widget.userId);
       setState(() {
         _following = following;
         _isLoading = false;
@@ -143,4 +145,3 @@ class _FollowingListPageState extends State<FollowingListPage> {
     );
   }
 }
-

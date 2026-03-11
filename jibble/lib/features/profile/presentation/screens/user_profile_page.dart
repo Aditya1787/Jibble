@@ -1,9 +1,12 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/search/data/datasources/user_search_service.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/search/domain/usecases/get_user_profile_for_search_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/is_following_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/get_follower_count_usecase.dart';
+import 'package:jibble/features/follow/domain/usecases/get_following_count_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
 import 'package:jibble/features/follow/presentation/widgets/follow_button_widget.dart';
 import 'package:jibble/features/profile/presentation/screens/followers_list_page.dart';
 import 'package:jibble/features/profile/presentation/screens/following_list_page.dart';
@@ -22,13 +25,15 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  final _authService = AuthService();
-  final _userSearchService = UserSearchService();
-  final _followService = FollowService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetUserProfileForSearchUseCase _getUserProfileUseCase;
+  late final IsFollowingUseCase _isFollowingUseCase;
+  late final GetFollowerCountUseCase _getFollowerCountUseCase;
+  late final GetFollowingCountUseCase _getFollowingCountUseCase;
 
   static const _primaryColor = Color(0xFF3B6FE8);
 
-  ProfileModel? _profile;
+  ProfileEntity? _profile;
   bool _isLoading = true;
   bool _isFollowing = false;
   int _followerCount = 0;
@@ -37,6 +42,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
   @override
   void initState() {
     super.initState();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getUserProfileUseCase = sl<GetUserProfileForSearchUseCase>();
+    _isFollowingUseCase = sl<IsFollowingUseCase>();
+    _getFollowerCountUseCase = sl<GetFollowerCountUseCase>();
+    _getFollowingCountUseCase = sl<GetFollowingCountUseCase>();
     _loadProfile();
   }
 
@@ -44,14 +54,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
     setState(() => _isLoading = true);
 
     try {
-      final profile = await _userSearchService.getUserProfile(widget.userId);
-      final isFollowing = await _followService.isFollowing(widget.userId);
-      final followerCount = await _followService.getFollowerCount(
-        widget.userId,
-      );
-      final followingCount = await _followService.getFollowingCount(
-        widget.userId,
-      );
+      final profile = await _getUserProfileUseCase(widget.userId);
+      final isFollowing = await _isFollowingUseCase(widget.userId);
+      final followerCount = await _getFollowerCountUseCase(widget.userId);
+      final followingCount = await _getFollowingCountUseCase(widget.userId);
 
       if (mounted) {
         setState(() {
@@ -69,13 +75,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   Future<void> _refreshCounts() async {
     try {
-      final followerCount = await _followService.getFollowerCount(
-        widget.userId,
-      );
-      final followingCount = await _followService.getFollowingCount(
-        widget.userId,
-      );
-      final isFollowing = await _followService.isFollowing(widget.userId);
+      final followerCount = await _getFollowerCountUseCase(widget.userId);
+      final followingCount = await _getFollowingCountUseCase(widget.userId);
+      final isFollowing = await _isFollowingUseCase(widget.userId);
       if (mounted) {
         setState(() {
           _followerCount = followerCount;
@@ -88,7 +90,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = _authService.currentUser?.id;
+    final currentUserId = _getCurrentUserUseCase()?.id;
     final isOwnProfile = currentUserId == widget.userId;
 
     return Scaffold(
@@ -381,4 +383,3 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 }
-

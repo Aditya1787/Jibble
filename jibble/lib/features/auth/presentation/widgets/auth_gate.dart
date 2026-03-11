@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/auth/presentation/screens/login_page.dart';
 import 'package:jibble/features/auth/presentation/widgets/onboarding_gate.dart';
 

@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/profile/data/datasources/profile_service.dart';
+import 'package:jibble/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/auth/presentation/screens/onboarding/username_page.dart';
 import 'package:jibble/main.dart';
 
@@ -15,7 +16,7 @@ class OnboardingGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
-    final profileService = ProfileService();
+    final getProfileUseCase = sl<GetProfileUseCase>();
     final user = authService.currentUser;
 
     if (user == null) {
@@ -24,7 +25,7 @@ class OnboardingGate extends StatelessWidget {
     }
 
     return FutureBuilder(
-      future: profileService.getProfile(user.id),
+      future: getProfileUseCase(user.id),
       builder: (context, snapshot) {
         // Loading state
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -92,4 +93,3 @@ class OnboardingGate extends StatelessWidget {
     );
   }
 }
-

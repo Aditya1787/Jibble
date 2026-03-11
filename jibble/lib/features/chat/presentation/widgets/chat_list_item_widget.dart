@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/chat/data/models/chat_model.dart';
+import 'package:jibble/features/chat/domain/entities/chat_entity.dart';
 import 'package:jibble/features/chat/presentation/screens/chat_arena_page.dart';
 import 'package:jibble/features/profile/presentation/screens/user_profile_page.dart';
 import 'package:jibble/features/profile/presentation/screens/fullscreen_photo_page.dart';
@@ -10,7 +10,7 @@ import 'package:jibble/features/profile/presentation/screens/fullscreen_photo_pa
 /// â€¢ Tap the row â†’ open chat
 /// â€¢ Tap the avatar â†’ bottom sheet (View Profile / Open Chat / View Photo)
 class ChatListItemWidget extends StatelessWidget {
-  final ChatModel chat;
+  final ChatEntity chat;
 
   const ChatListItemWidget({super.key, required this.chat});
 
@@ -317,4 +317,3 @@ class _OptionTile extends StatelessWidget {
     );
   }
 }
-

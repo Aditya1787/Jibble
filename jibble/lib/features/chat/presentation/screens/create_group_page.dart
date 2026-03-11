@@ -1,8 +1,9 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/chat/data/datasources/group_service.dart';
-import 'package:jibble/features/search/data/datasources/user_search_service.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/search/domain/usecases/search_users_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/create_group_usecase.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
 import 'package:jibble/features/chat/presentation/screens/group_arena_page.dart';
 
 /// Create Group Page
@@ -18,9 +19,10 @@ class CreateGroupPage extends StatefulWidget {
 }
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
-  final _groupService = GroupService();
-  final _userSearchService = UserSearchService();
-  final _authService = AuthService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final SearchUsersUseCase _searchUsersUseCase;
+  late final CreateGroupUseCase _createGroupUseCase;
+
   final _nameController = TextEditingController();
   final _searchController = TextEditingController();
 
@@ -47,12 +49,20 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   ];
 
   String _selectedEmoji = 'ðŸ‘¥';
-  List<UserSearchModel> _searchResults = [];
+  List<UserSearchEntity> _searchResults = [];
   final Set<String> _selectedIds = {};
-  final Map<String, UserSearchModel> _selectedUsers = {};
+  final Map<String, UserSearchEntity> _selectedUsers = {};
   bool _isSearching = false;
   bool _isCreating = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _searchUsersUseCase = sl<SearchUsersUseCase>();
+    _createGroupUseCase = sl<CreateGroupUseCase>();
+  }
 
   @override
   void dispose() {
@@ -68,8 +78,8 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     }
     setState(() => _isSearching = true);
     try {
-      final results = await _userSearchService.searchUsers(query.trim());
-      final myId = _authService.currentUser?.id;
+      final results = await _searchUsersUseCase(query.trim());
+      final myId = _getCurrentUserUseCase()?.id;
       if (mounted) {
         setState(() {
           _searchResults = results.where((u) => u.id != myId).toList();
@@ -81,7 +91,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     }
   }
 
-  void _toggleUser(UserSearchModel user) {
+  void _toggleUser(UserSearchEntity user) {
     setState(() {
       if (_selectedIds.contains(user.id)) {
         _selectedIds.remove(user.id);
@@ -110,10 +120,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     });
 
     try {
-      final group = await _groupService.createGroup(
-        name: name,
+      final group = await _createGroupUseCase(
+        name,
+        _selectedIds.toList(),
         iconEmoji: _selectedEmoji,
-        memberIds: _selectedIds.toList(),
       );
       if (mounted) {
         Navigator.of(context).pushReplacement(
@@ -511,4 +521,3 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 }
-

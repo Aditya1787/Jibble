@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/follow/domain/usecases/remove_follower_usecase.dart';
 import 'package:jibble/features/profile/presentation/screens/user_profile_page.dart';
 import 'package:jibble/features/follow/presentation/widgets/follow_button_widget.dart';
 
@@ -8,7 +9,7 @@ import 'package:jibble/features/follow/presentation/widgets/follow_button_widget
 ///
 /// Reusable widget for displaying a user in a list
 class UserListItemWidget extends StatelessWidget {
-  final UserSearchModel user;
+  final UserSearchEntity user;
   final bool showFollowButton;
   final bool showRemoveButton;
   final VoidCallback? onRemoved;
@@ -48,7 +49,7 @@ class UserListItemWidget extends StatelessWidget {
 
     if (shouldRemove == true && context.mounted) {
       try {
-        await FollowService().removeFollower(user.id);
+        await sl<RemoveFollowerUseCase>().call(user.id);
         if (context.mounted) {
           ScaffoldMessenger.of(
             context,
@@ -118,4 +119,3 @@ class UserListItemWidget extends StatelessWidget {
     );
   }
 }
-

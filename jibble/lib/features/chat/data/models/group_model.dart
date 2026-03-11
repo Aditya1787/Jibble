@@ -1,26 +1,19 @@
+import 'package:jibble/features/chat/domain/entities/group_entity.dart';
+
 /// Group Model
 ///
 /// Represents a group chat and its members.
-class GroupModel {
-  final String id;
-  final String name;
-  final String iconEmoji;
-  final String createdBy;
-  final DateTime createdAt;
-  final String? lastMessage;
-  final DateTime? lastMessageAt;
-  final List<GroupMemberModel> members;
-
+class GroupModel extends GroupEntity {
   GroupModel({
-    required this.id,
-    required this.name,
-    required this.iconEmoji,
-    required this.createdBy,
-    required this.createdAt,
-    this.lastMessage,
-    this.lastMessageAt,
-    this.members = const [],
-  });
+    required super.id,
+    required super.name,
+    required super.iconEmoji,
+    required super.createdBy,
+    required super.createdAt,
+    super.lastMessage,
+    super.lastMessageAt,
+    List<GroupMemberModel> members = const [],
+  }) : super(members: members);
 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     final rawMembers = json['group_members'] as List<dynamic>? ?? [];
@@ -37,49 +30,21 @@ class GroupModel {
       members: rawMembers.map((m) => GroupMemberModel.fromJson(m)).toList(),
     );
   }
-
-  /// Formatted time for the last message
-  String get formattedTime {
-    if (lastMessageAt == null) return '';
-    final now = DateTime.now();
-    final diff = now.difference(lastMessageAt!);
-    if (diff.inMinutes < 1) return 'Just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    if (diff.inDays == 1) return 'Yesterday';
-    return '${lastMessageAt!.day}/${lastMessageAt!.month}';
-  }
-
-  int get memberCount => members.length;
 }
 
 // ── Member ────────────────────────────────────────────────────────────────────
 
-/// Roles a member can have inside a group.
-enum GroupRole { owner, member }
-
 /// Represents a single member inside a group.
-class GroupMemberModel {
-  final String id; // group_members.id
-  final String groupId;
-  final String userId;
-  final GroupRole role;
-  final DateTime joinedAt;
-
-  // Joined from profiles table
-  final String? username;
-  final String? name;
-  final String? profilePictureUrl;
-
+class GroupMemberModel extends GroupMemberEntity {
   GroupMemberModel({
-    required this.id,
-    required this.groupId,
-    required this.userId,
-    required this.role,
-    required this.joinedAt,
-    this.username,
-    this.name,
-    this.profilePictureUrl,
+    required super.id,
+    required super.groupId,
+    required super.userId,
+    required super.role,
+    required super.joinedAt,
+    super.username,
+    super.name,
+    super.profilePictureUrl,
   });
 
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
@@ -99,13 +64,4 @@ class GroupMemberModel {
       profilePictureUrl: profile?['profile_picture_url'] as String?,
     );
   }
-
-  /// Display name: real name → username → fallback
-  String get displayName =>
-      (name != null && name!.isNotEmpty) ? name! : (username ?? 'User');
-
-  String get initials =>
-      displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
-
-  bool get isOwner => role == GroupRole.owner;
 }

@@ -1,19 +1,15 @@
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
+
 /// User Search Model
 ///
 /// Represents a user in search results with basic profile information
-class UserSearchModel {
-  final String id;
-  final String? email;
-  final String? username;
-  final String? profilePictureUrl;
-  final String? collegeName;
-
-  UserSearchModel({
-    required this.id,
-    this.email,
-    this.username,
-    this.profilePictureUrl,
-    this.collegeName,
+class UserSearchModel extends UserSearchEntity {
+  const UserSearchModel({
+    required super.id,
+    super.email,
+    super.username,
+    super.profilePictureUrl,
+    super.collegeName,
   });
 
   /// Create a UserSearchModel from JSON
@@ -37,8 +33,4 @@ class UserSearchModel {
       'college_name': collegeName,
     };
   }
-
-  /// Get display name (username or email or id)
-  String get displayName =>
-      username ?? (email != null ? email!.split('@')[0] : 'User');
 }

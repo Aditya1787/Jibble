@@ -1,12 +1,12 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 
 class AccountInformationPage extends StatelessWidget {
-  final ProfileModel? profile;
-  final AuthService _authService = AuthService();
+  final ProfileEntity? profile;
 
-  AccountInformationPage({super.key, required this.profile});
+  const AccountInformationPage({super.key, required this.profile});
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
@@ -24,7 +24,7 @@ class AccountInformationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = _authService.currentUser;
+    final user = sl<GetCurrentUserUseCase>()();
 
     return Scaffold(
       appBar: AppBar(
@@ -105,7 +105,7 @@ class AccountInformationPage extends StatelessWidget {
                       Icons.calendar_today_outlined,
                       'Account Created',
                       user?.createdAt != null
-                          ? _formatDate(DateTime.parse(user!.createdAt))
+                          ? _formatDate(DateTime.parse(user!.createdAt!))
                           : 'Not available',
                     ),
                   ],
@@ -151,4 +151,3 @@ class AccountInformationPage extends StatelessWidget {
     );
   }
 }
-

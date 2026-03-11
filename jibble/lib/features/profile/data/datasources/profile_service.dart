@@ -2,7 +2,7 @@
 import 'dart:typed_data';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/profile/data/models/profile_model.dart';
 
 /// Profile Service
@@ -205,5 +205,47 @@ class ProfileService {
       throw 'Failed to check username availability: $e';
     }
   }
-}
 
+  Future<ProfileModel?> getProfileByUsername(String username) async {
+    try {
+      final response = await supabase
+          .from('profiles')
+          .select()
+          .eq('username', username)
+          .maybeSingle();
+
+      if (response == null) return null;
+
+      return ProfileModel.fromJson(response);
+    } catch (e) {
+      throw 'Failed to fetch profile by username: $e';
+    }
+  }
+
+  Future<List<ProfileModel>> searchProfiles(String query) async {
+    try {
+      final response = await supabase
+          .from('profiles')
+          .select()
+          .ilike('username', '%$query%')
+          .limit(20);
+
+      return (response as List)
+          .map((data) => ProfileModel.fromJson(data))
+          .toList();
+    } catch (e) {
+      throw 'Failed to search profiles: $e';
+    }
+  }
+
+  Future<void> updateProfilePicture(String userId, String imageUrl) async {
+    try {
+      await supabase
+          .from('profiles')
+          .update({'profile_picture_url': imageUrl})
+          .eq('id', userId);
+    } catch (e) {
+      throw 'Failed to update profile picture URL in database: $e';
+    }
+  }
+}

@@ -1,23 +1,17 @@
+import 'package:jibble/features/chat/domain/entities/chat_entity.dart';
+
 /// Chat Model
 ///
 /// Represents a conversation with another user
-class ChatModel {
-  final String id;
-  final String otherUserId;
-  final String? otherUserName;
-  final String? otherUserProfilePic;
-  final String? lastMessage;
-  final DateTime? lastMessageAt;
-  final int unreadCount;
-
+class ChatModel extends ChatEntity {
   ChatModel({
-    required this.id,
-    required this.otherUserId,
-    this.otherUserName,
-    this.otherUserProfilePic,
-    this.lastMessage,
-    this.lastMessageAt,
-    this.unreadCount = 0,
+    required super.id,
+    required super.otherUserId,
+    super.otherUserName,
+    super.otherUserProfilePic,
+    super.lastMessage,
+    super.lastMessageAt,
+    super.unreadCount = 0,
   });
 
   /// Create a ChatModel from JSON

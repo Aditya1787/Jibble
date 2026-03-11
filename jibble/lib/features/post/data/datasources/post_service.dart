@@ -2,7 +2,7 @@
 import 'dart:typed_data';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/post/data/models/post_model.dart';
 
 class PostService {

@@ -1,10 +1,11 @@
 ﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:jibble/features/post/data/datasources/post_service.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
-import 'package:jibble/features/profile/data/datasources/profile_service.dart';
+import 'package:jibble/features/post/domain/usecases/create_post_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/features/profile/domain/usecases/get_profile_usecase.dart';
 
 class CreatePostPage extends StatefulWidget {
   final bool isCirclePost;
@@ -22,11 +23,11 @@ class CreatePostPage extends StatefulWidget {
 
 class _CreatePostPageState extends State<CreatePostPage> {
   final _captionController = TextEditingController();
-  final _postService = PostService();
-  final _authService = AuthService();
-  final _profileService = ProfileService();
+  late final CreatePostUseCase _createPostUseCase;
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetProfileUseCase _getProfileUseCase;
 
-  ProfileModel? _profile;
+  ProfileEntity? _profile;
   File? _imageFile;
   bool _isLoading = false;
   bool _isProfileLoading = true;
@@ -36,14 +37,17 @@ class _CreatePostPageState extends State<CreatePostPage> {
   @override
   void initState() {
     super.initState();
+    _createPostUseCase = sl<CreatePostUseCase>();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getProfileUseCase = sl<GetProfileUseCase>();
     _loadProfile();
   }
 
   Future<void> _loadProfile() async {
     try {
-      final user = _authService.currentUser;
+      final user = _getCurrentUserUseCase();
       if (user != null) {
-        final profile = await _profileService.getProfile(user.id);
+        final profile = await _getProfileUseCase(user.id);
         if (mounted) {
           setState(() {
             _profile = profile;
@@ -65,7 +69,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
       final size = await file.length();
 
       // 5MB limit
-      if (size > PostService.maxFileSize) {
+      if (size > 5 * 1024 * 1024) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -104,7 +108,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     setState(() => _isLoading = true);
 
     try {
-      await _postService.createPost(
+      await _createPostUseCase(
         type: widget.postType,
         caption: _captionController.text.trim(),
         imageFile: _imageFile,
@@ -494,4 +498,3 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 }
-

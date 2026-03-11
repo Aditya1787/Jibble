@@ -1,9 +1,17 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/chat/data/datasources/group_service.dart';
-import 'package:jibble/features/search/data/datasources/user_search_service.dart';
-import 'package:jibble/features/chat/data/models/group_model.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/is_owner_of_group_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/update_group_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_group_by_id_usecase.dart';
+import 'package:jibble/features/search/domain/usecases/search_users_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/add_group_members_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/remove_group_member_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/transfer_group_ownership_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/exit_group_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/delete_group_usecase.dart';
+import 'package:jibble/features/chat/domain/entities/group_entity.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
 
 /// Group Settings Page
 ///
@@ -18,7 +26,7 @@ import 'package:jibble/features/search/data/models/user_search_model.dart';
 ///  â€¢ View members list
 ///  â€¢ Exit group
 class GroupSettingsPage extends StatefulWidget {
-  final GroupModel group;
+  final GroupEntity group;
 
   const GroupSettingsPage({super.key, required this.group});
 
@@ -27,9 +35,16 @@ class GroupSettingsPage extends StatefulWidget {
 }
 
 class _GroupSettingsPageState extends State<GroupSettingsPage> {
-  final _groupService = GroupService();
-  final _authService = AuthService();
-  final _userSearchService = UserSearchService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final IsOwnerOfGroupUseCase _isOwnerOfGroupUseCase;
+  late final UpdateGroupUseCase _updateGroupUseCase;
+  late final GetGroupByIdUseCase _getGroupByIdUseCase;
+  late final SearchUsersUseCase _searchUsersUseCase;
+  late final AddGroupMembersUseCase _addGroupMembersUseCase;
+  late final RemoveGroupMemberUseCase _removeGroupMemberUseCase;
+  late final TransferGroupOwnershipUseCase _transferGroupOwnershipUseCase;
+  late final ExitGroupUseCase _exitGroupUseCase;
+  late final DeleteGroupUseCase _deleteGroupUseCase;
 
   static const _purple = Color(0xFF6B4CE6);
   static const _emojis = [
@@ -51,7 +66,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     'ðŸŽ­',
   ];
 
-  late GroupModel _group;
+  late GroupEntity _group;
   late TextEditingController _nameController;
   String? _currentUserId;
   bool _isOwner = false;
@@ -61,8 +76,19 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
   void initState() {
     super.initState();
     _group = widget.group;
-    _currentUserId = _authService.currentUser?.id;
-    _isOwner = _groupService.isOwnerOf(_group);
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _isOwnerOfGroupUseCase = sl<IsOwnerOfGroupUseCase>();
+    _updateGroupUseCase = sl<UpdateGroupUseCase>();
+    _getGroupByIdUseCase = sl<GetGroupByIdUseCase>();
+    _searchUsersUseCase = sl<SearchUsersUseCase>();
+    _addGroupMembersUseCase = sl<AddGroupMembersUseCase>();
+    _removeGroupMemberUseCase = sl<RemoveGroupMemberUseCase>();
+    _transferGroupOwnershipUseCase = sl<TransferGroupOwnershipUseCase>();
+    _exitGroupUseCase = sl<ExitGroupUseCase>();
+    _deleteGroupUseCase = sl<DeleteGroupUseCase>();
+
+    _currentUserId = _getCurrentUserUseCase()?.id;
+    _isOwner = _isOwnerOfGroupUseCase(_group, _currentUserId ?? '');
     _nameController = TextEditingController(text: _group.name);
   }
 
@@ -78,12 +104,12 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     if (!_isOwner) return;
     setState(() => _isSaving = true);
     try {
-      await _groupService.updateGroup(
+      await _updateGroupUseCase(
         groupId: _group.id,
         name: _nameController.text,
         iconEmoji: _group.iconEmoji,
       );
-      final updated = await _groupService.getGroupById(_group.id);
+      final updated = await _getGroupByIdUseCase(_group.id);
       if (mounted) setState(() => _group = updated);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -137,17 +163,16 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                 return GestureDetector(
                   onTap: () {
                     setState(
-                      () => _group = GroupModel.fromJson({
-                        'id': _group.id,
-                        'name': _group.name,
-                        'icon_emoji': e,
-                        'created_by': _group.createdBy,
-                        'created_at': _group.createdAt.toIso8601String(),
-                        'last_message': _group.lastMessage,
-                        'last_message_at': _group.lastMessageAt
-                            ?.toIso8601String(),
-                        'group_members': [],
-                      }),
+                      () => _group = GroupEntity(
+                        id: _group.id,
+                        name: _group.name,
+                        iconEmoji: e,
+                        createdBy: _group.createdBy,
+                        createdAt: _group.createdAt,
+                        lastMessage: _group.lastMessage,
+                        lastMessageAt: _group.lastMessageAt,
+                        members: _group.members,
+                      ),
                     );
                     Navigator.pop(ctx);
                   },
@@ -178,7 +203,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
 
   void _showAddMembers() {
     final searchCtrl = TextEditingController();
-    List<UserSearchModel> results = [];
+    List<UserSearchEntity> results = [];
     final Set<String> adding = {};
     final existingIds = _group.members.map((m) => m.userId).toSet();
 
@@ -237,7 +262,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         setModal(() => results = []);
                         return;
                       }
-                      final r = await _userSearchService.searchUsers(q.trim());
+                      final r = await _searchUsersUseCase(q.trim());
                       setModal(
                         () => results = r
                             .where((u) => !existingIds.contains(u.id))
@@ -290,11 +315,11 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                           ? null
                           : () async {
                               Navigator.pop(ctx);
-                              await _groupService.addMembers(
+                              await _addGroupMembersUseCase(
                                 groupId: _group.id,
                                 userIds: adding.toList(),
                               );
-                              final updated = await _groupService.getGroupById(
+                              final updated = await _getGroupByIdUseCase(
                                 _group.id,
                               );
                               if (mounted) {
@@ -326,9 +351,9 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     );
   }
 
-  // â”€â”€ Member options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Member options ──────────────────────────────────────────────────────────
 
-  void _showMemberOptions(GroupMemberModel member) {
+  void _showMemberOptions(GroupMemberEntity member) {
     if (!_isOwner || member.userId == _currentUserId) return;
 
     showModalBottomSheet(
@@ -367,15 +392,18 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     'Make ${member.displayName} the owner? You will become a regular member.',
                   );
                   if (confirm) {
-                    await _groupService.transferOwnership(
+                    await _transferGroupOwnershipUseCase(
                       groupId: _group.id,
                       newOwnerId: member.userId,
                     );
-                    final updated = await _groupService.getGroupById(_group.id);
+                    final updated = await _getGroupByIdUseCase(_group.id);
                     if (mounted) {
                       setState(() {
                         _group = updated;
-                        _isOwner = _groupService.isOwnerOf(updated);
+                        _isOwner = _isOwnerOfGroupUseCase(
+                          updated,
+                          _currentUserId ?? '',
+                        );
                       });
                     }
                   }
@@ -398,11 +426,11 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                   'Remove ${member.displayName} from the group?',
                 );
                 if (confirm) {
-                  await _groupService.removeMember(
+                  await _removeGroupMemberUseCase(
                     groupId: _group.id,
                     userId: member.userId,
                   );
-                  final updated = await _groupService.getGroupById(_group.id);
+                  final updated = await _getGroupByIdUseCase(_group.id);
                   if (mounted) setState(() => _group = updated);
                 }
               },
@@ -426,7 +454,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     if (!confirm) return;
 
     try {
-      await _groupService.exitGroup(_group.id);
+      await _exitGroupUseCase(_group.id);
       if (mounted) {
         // Pop settings + group arena back to chat list
         Navigator.of(context)
@@ -453,7 +481,7 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     if (!confirm) return;
 
     try {
-      await _groupService.deleteGroup(_group.id);
+      await _deleteGroupUseCase(_group.id);
       if (mounted) {
         Navigator.of(context)
           ..pop()
@@ -803,8 +831,11 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                         color: Colors.grey.shade500,
                       ),
                     ),
-                    trailing: member.isOwner
-                        ? Container(
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (member.isOwner)
+                          Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 3,
@@ -819,23 +850,24 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
-                              'ðŸ‘‘ Owner',
+                              '👑 Owner',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          )
-                        : (_isOwner && !isMe)
-                        ? IconButton(
+                          ),
+                        if (_isOwner && !isMe)
+                          IconButton(
                             icon: Icon(
                               Icons.more_vert,
                               color: Colors.grey.shade400,
                             ),
                             onPressed: () => _showMemberOptions(member),
-                          )
-                        : null,
+                          ),
+                      ],
+                    ),
                     onLongPress: (_isOwner && !isMe)
                         ? () => _showMemberOptions(member)
                         : null,
@@ -902,4 +934,3 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     );
   }
 }
-

@@ -1,25 +1,17 @@
+import 'package:jibble/features/chat/domain/entities/group_message_entity.dart';
+
 /// Group Message Model
 ///
 /// A single message inside a group chat.
-class GroupMessageModel {
-  final String id;
-  final String groupId;
-  final String senderId;
-  final String content;
-  final DateTime createdAt;
-
-  // Joined from profiles
-  final String? senderUsername;
-  final String? senderProfilePic;
-
+class GroupMessageModel extends GroupMessageEntity {
   GroupMessageModel({
-    required this.id,
-    required this.groupId,
-    required this.senderId,
-    required this.content,
-    required this.createdAt,
-    this.senderUsername,
-    this.senderProfilePic,
+    required super.id,
+    required super.groupId,
+    required super.senderId,
+    required super.content,
+    required super.createdAt,
+    super.senderUsername,
+    super.senderProfilePic,
   });
 
   factory GroupMessageModel.fromJson(Map<String, dynamic> json) {

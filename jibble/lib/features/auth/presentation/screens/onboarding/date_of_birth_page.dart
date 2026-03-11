@@ -1,5 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:jibble/features/auth/presentation/screens/onboarding/college_page.dart';
+import 'package:jibble/core/theme/app_colors.dart';
+import 'package:jibble/core/theme/app_radius.dart';
+import 'package:jibble/core/theme/app_spacing.dart';
+import 'package:jibble/core/theme/text_styles.dart';
 
 /// Date of Birth Input Page
 ///
@@ -27,9 +31,9 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.green.shade600,
+              primary: AppColors.primary,
               onPrimary: Colors.white,
-              onSurface: Colors.black,
+              onSurface: AppColors.textPrimary,
             ),
           ),
           child: child!,
@@ -84,9 +88,15 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Date of Birth'),
+        title: Text(
+          'Date of Birth',
+          style: AppTextStyles.heading1.copyWith(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
         elevation: 0,
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Container(
@@ -94,14 +104,17 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green.shade600, Colors.green.shade50],
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.1),
+            ],
             stops: const [0.0, 0.3],
           ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -118,7 +131,7 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
                       _buildProgressDot(false),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Icon
                   Container(
@@ -138,74 +151,69 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
                     child: Icon(
                       Icons.cake_outlined,
                       size: 50,
-                      color: Colors.green.shade600,
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.lg),
 
                   // Title
                   Text(
                     'When\'s Your Birthday?',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading1.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
 
                   Text(
                     'We use this to personalize your experience',
-                    style: TextStyle(
-                      fontSize: 16,
+                    style: AppTextStyles.bodyText.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: AppSpacing.xxl),
 
                   // Date selector card
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: AppRadius.circularXl,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Date display/selector
                           InkWell(
                             onTap: _selectDate,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadius.circularLg,
                             child: Container(
-                              padding: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(AppSpacing.md),
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: _errorMessage != null
-                                      ? Colors.red
+                                      ? AppColors.error
                                       : Colors.grey.shade300,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: AppRadius.circularLg,
                               ),
                               child: Row(
                                 children: [
                                   Icon(
                                     Icons.calendar_today,
-                                    color: Colors.green.shade600,
+                                    color: AppColors.primary,
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: AppSpacing.md),
                                   Expanded(
                                     child: Text(
                                       _selectedDate != null
                                           ? _formatDate(_selectedDate!)
                                           : 'Select your date of birth',
-                                      style: TextStyle(
-                                        fontSize: 16,
+                                      style: AppTextStyles.bodyText.copyWith(
                                         color: _selectedDate != null
-                                            ? Colors.black87
-                                            : Colors.grey.shade600,
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
                                       ),
                                     ),
                                   ),
@@ -216,33 +224,34 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
 
                           // Error message
                           if (_errorMessage != null) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppSpacing.sm),
                             Text(
                               _errorMessage!,
-                              style: TextStyle(
-                                color: Colors.red.shade700,
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: AppColors.error,
                                 fontSize: 12,
                               ),
                             ),
                           ],
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: AppSpacing.lg),
 
                           // Next button
                           ElevatedButton(
                             onPressed: _handleNext,
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md,
                               ),
-                              backgroundColor: Colors.green.shade600,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: AppRadius.circularLg,
+                              ),
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                             ),
-                            child: const Text(
+                            child: Text(
                               'Next',
-                              style: TextStyle(
-                                fontSize: 16,
+                              style: AppTextStyles.bodyText.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -279,4 +288,3 @@ class _DateOfBirthPageState extends State<DateOfBirthPage> {
     );
   }
 }
-

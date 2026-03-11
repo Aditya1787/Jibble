@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/search/data/datasources/user_search_service.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
+import 'package:jibble/features/search/domain/usecases/search_users_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/search/presentation/widgets/user_search_result_widget.dart';
 
 /// Search Page
@@ -14,10 +15,10 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final _searchService = UserSearchService();
+  final _searchUsersUseCase = sl<SearchUsersUseCase>();
   final _searchController = TextEditingController();
 
-  List<UserSearchModel> _searchResults = [];
+  List<UserSearchEntity> _searchResults = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -42,7 +43,7 @@ class _SearchPageState extends State<SearchPage> {
     });
 
     try {
-      final results = await _searchService.searchUsers(query);
+      final results = await _searchUsersUseCase(query);
       setState(() {
         _searchResults = results;
         _isLoading = false;
@@ -193,4 +194,3 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-

@@ -1,0 +1,15 @@
+Analyzing jibble...                                             
+
+   info - Unnecessary escape in string literal - generate_core.dart:63:90 - unnecessary_string_escapes
+   info - Don't invoke 'print' in production code - generate_core.dart:499:5 - avoid_print
+  error - Target of URI doesn't exist: '../entities/user_entity.dart' - lib\features\auth\data\models\user_model.dart:2:8 - uri_does_not_exist
+  error - Classes can only extend other classes - lib\features\auth\data\models\user_model.dart:4:25 - extends_non_class
+  error - No associated named super constructor parameter - lib\features\auth\data\models\user_model.dart:5:35 - super_formal_parameter_without_associated_named
+  error - No associated named super constructor parameter - lib\features\auth\data\models\user_model.dart:5:45 - super_formal_parameter_without_associated_named
+  error - No associated named super constructor parameter - lib\features\auth\data\models\user_model.dart:5:58 - super_formal_parameter_without_associated_named
+  error - A value of type 'UserModel' can't be returned from the method 'signUp' because it has a return type of 'Future<UserEntity?>' - lib\features\auth\data\repositories\auth_repository_impl.dart:22:14 - return_of_invalid_type
+  error - A value of type 'UserModel' can't be returned from the method 'signIn' because it has a return type of 'Future<UserEntity?>' - lib\features\auth\data\repositories\auth_repository_impl.dart:37:14 - return_of_invalid_type
+  error - A value of type 'UserModel' can't be returned from the method 'getCurrentUser' because it has a return type of 'UserEntity?' - lib\features\auth\data\repositories\auth_repository_impl.dart:51:14 - return_of_invalid_type
+  error - The returned type 'UserModel' isn't returnable from a 'UserEntity?' function, as required by the closure's context - lib\features\auth\data\repositories\auth_repository_impl.dart:61:16 - return_of_invalid_type_from_closure
+warning - Unused import: 'package:supabase_flutter/supabase_flutter.dart' - lib\features\auth\presentation\provider\auth_provider.dart:10:8 - unused_import
+

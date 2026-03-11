@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/follow/data/datasources/follow_service.dart';
-import 'package:jibble/features/search/data/models/user_search_model.dart';
+import 'package:jibble/features/follow/domain/usecases/get_followers_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/search/domain/entities/user_search_entity.dart';
 import 'package:jibble/features/follow/presentation/widgets/user_list_item_widget.dart';
 
 /// Followers List Page
@@ -21,14 +22,15 @@ class FollowersListPage extends StatefulWidget {
 }
 
 class _FollowersListPageState extends State<FollowersListPage> {
-  final _followService = FollowService();
-  List<UserSearchModel> _followers = [];
+  late final GetFollowersUseCase _getFollowersUseCase;
+  List<UserSearchEntity> _followers = [];
   bool _isLoading = true;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _getFollowersUseCase = sl<GetFollowersUseCase>();
     _loadFollowers();
   }
 
@@ -39,7 +41,7 @@ class _FollowersListPageState extends State<FollowersListPage> {
     });
 
     try {
-      final followers = await _followService.getFollowers(widget.userId);
+      final followers = await _getFollowersUseCase(widget.userId);
       setState(() {
         _followers = followers;
         _isLoading = false;
@@ -149,4 +151,3 @@ class _FollowersListPageState extends State<FollowersListPage> {
     );
   }
 }
-

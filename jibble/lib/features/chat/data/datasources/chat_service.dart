@@ -1,6 +1,6 @@
 ﻿import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/chat/data/models/chat_model.dart';
 import 'package:jibble/features/chat/data/models/message_model.dart';
 
@@ -10,6 +10,12 @@ import 'package:jibble/features/chat/data/models/message_model.dart';
 class ChatService {
   final SupabaseClient _supabase = supabase;
   final Map<String, RealtimeChannel> _subscriptions = {};
+
+  final StreamController<List<ChatModel>> _recentChatsController =
+      StreamController<List<ChatModel>>.broadcast();
+
+  Stream<List<ChatModel>> getRecentChatsStream() =>
+      _recentChatsController.stream;
 
   /// Get or create a conversation with another user
   Future<String> getOrCreateConversation(String otherUserId) async {
@@ -57,6 +63,8 @@ class ChatService {
   }
 
   /// Get all conversations for the current user
+  Future<List<ChatModel>> getRecentChats() async => getConversations();
+
   Future<List<ChatModel>> getConversations() async {
     try {
       final currentUserId = _supabase.auth.currentUser?.id;
@@ -166,6 +174,9 @@ class ChatService {
   }
 
   /// Mark all messages in a conversation as read
+  Future<void> markAsRead(String conversationId) async =>
+      markMessagesAsRead(conversationId);
+
   Future<void> markMessagesAsRead(String conversationId) async {
     try {
       final currentUserId = _supabase.auth.currentUser?.id;
@@ -240,6 +251,18 @@ class ChatService {
     return channel;
   }
 
+  /// Get messages stream
+  Stream<List<MessageModel>> getMessagesStream(String conversationId) {
+    // Note: this assumes existing code structure has been updated or handled correctly via subscribeToMessages.
+    // For now we will return a stream that fetches initially and then listens.
+    // A proper implementation might involve using supabase.from(...).stream()
+    return _supabase
+        .from('messages')
+        .stream(primaryKey: ['id'])
+        .eq('conversation_id', conversationId)
+        .map((event) => event.map((e) => MessageModel.fromJson(e)).toList());
+  }
+
   /// Unsubscribe from a conversation's messages
   void unsubscribeFromMessages(String conversationId) {
     if (_subscriptions.containsKey(conversationId)) {
@@ -307,4 +330,3 @@ class ChatService {
     }
   }
 }
-

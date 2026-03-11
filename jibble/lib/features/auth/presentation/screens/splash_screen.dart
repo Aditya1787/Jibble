@@ -142,11 +142,11 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
                         ).createShader(bounds),
                         child: Text(
                           'Jibble',
-                          style: GoogleFonts.poppins(
-                            fontSize: 56,
+                          style: GoogleFonts.dancingScript(
+                            fontSize: 72,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            letterSpacing: 3,
+                            letterSpacing: 2,
                             height: 1.2,
                           ),
                         ),
@@ -228,4 +228,3 @@ class _EnhancedSplashScreenState extends State<EnhancedSplashScreen>
     );
   }
 }
-

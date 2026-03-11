@@ -1,0 +1,55 @@
+Analyzing jibble...                                             
+
+   info - Don't invoke 'print' in production code - generate_core.dart:499:5 - avoid_print
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\auth\data\datasources\auth_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:15:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:19:45 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:30:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:51:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\auth\data\datasources\auth_service.dart:68:13 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\auth\presentation\widgets\auth_gate.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\auth\presentation\widgets\auth_gate.dart:20:15 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\chat\data\datasources\chat_service.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\chat\data\datasources\chat_service.dart:11:36 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\chat\data\datasources\group_service.dart:3:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\chat\data\datasources\group_service.dart:18:36 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\circle\data\datasources\circle_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\circle\data\datasources\circle_service.dart:15:36 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\follow\data\datasources\follow_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\follow\data\datasources\follow_service.dart:9:36 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\post\data\datasources\post_service.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:22:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:23:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:45:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:49:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:68:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:69:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:88:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:89:28 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:125:29 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:128:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:136:14 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:155:27 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:160:39 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:168:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:183:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:192:22 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:194:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:200:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:213:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:230:22 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\post\data\datasources\post_service.dart:231:13 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\profile\data\datasources\profile_service.dart:5:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:23:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:63:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:111:30 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:152:13 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:163:25 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:179:27 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:185:15 - undefined_identifier
+  error - Undefined name 'supabase' - lib\features\profile\data\datasources\profile_service.dart:197:30 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\features\search\data\datasources\user_search_service.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'supabase' - lib\features\search\data\datasources\user_search_service.dart:10:36 - undefined_identifier
+  error - Target of URI doesn't exist: 'package:jibble/core/network/supabase_config.dart' - lib\main.dart:2:8 - uri_does_not_exist
+  error - Undefined name 'SupabaseConfig' - lib\main.dart:27:9 - undefined_identifier
+

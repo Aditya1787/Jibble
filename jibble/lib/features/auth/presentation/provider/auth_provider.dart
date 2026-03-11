@@ -1,32 +1,41 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/profile/data/datasources/profile_service.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
+import 'package:jibble/features/auth/domain/entities/user_entity.dart';
+import 'package:jibble/features/auth/domain/usecases/get_auth_state_changes_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/features/profile/domain/usecases/get_profile_usecase.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  final ProfileService _profileService = ProfileService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetAuthStateChangesUseCase _getAuthStateChangesUseCase;
+  late final SignOutUseCase _signOutUseCase;
+  late final GetProfileUseCase _getProfileUseCase;
 
-  User? _user;
-  ProfileModel? _profile;
+  UserEntity? _user;
+  ProfileEntity? _profile;
   bool _isLoading = true;
 
-  User? get user => _user;
-  ProfileModel? get profile => _profile;
+  UserEntity? get user => _user;
+  ProfileEntity? get profile => _profile;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
 
   AuthProvider() {
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getAuthStateChangesUseCase = sl<GetAuthStateChangesUseCase>();
+    _signOutUseCase = sl<SignOutUseCase>();
+    _getProfileUseCase = sl<GetProfileUseCase>();
     _initAuth();
   }
 
   Future<void> _initAuth() async {
-    _user = _authService.currentUser;
+    _user = _getCurrentUserUseCase();
 
     // Listen to auth state changes
-    _authService.authStateChanges.listen((data) async {
-      _user = data.session?.user;
+    _getAuthStateChangesUseCase().listen((user) async {
+      _user = user;
       if (_user != null) {
         await fetchProfile();
       } else {
@@ -51,7 +60,7 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      _profile = await _profileService.getProfile(_user!.id);
+      _profile = await _getProfileUseCase(_user!.id);
     } catch (e) {
       debugPrint('Error fetching profile: \$e');
     } finally {
@@ -61,7 +70,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _authService.signOut();
+    await _signOutUseCase();
   }
 }
-

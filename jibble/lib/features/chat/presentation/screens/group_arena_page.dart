@@ -1,9 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/chat/data/datasources/group_service.dart';
-import 'package:jibble/features/chat/data/models/group_model.dart';
-import 'package:jibble/features/chat/data/models/group_message_model.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_group_messages_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/subscribe_to_group_messages_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/unsubscribe_from_group_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/send_group_message_usecase.dart';
+import 'package:jibble/features/chat/domain/entities/group_entity.dart';
+import 'package:jibble/features/chat/domain/entities/group_message_entity.dart';
 import 'package:jibble/features/chat/presentation/screens/group_settings_page.dart';
 
 /// Group Arena Page
@@ -11,7 +15,7 @@ import 'package:jibble/features/chat/presentation/screens/group_settings_page.da
 /// The main group chat screen with real-time messaging.
 /// Shows sender name + avatar above each message bubble.
 class GroupArenaPage extends StatefulWidget {
-  final GroupModel group;
+  final GroupEntity group;
 
   const GroupArenaPage({super.key, required this.group});
 
@@ -20,15 +24,19 @@ class GroupArenaPage extends StatefulWidget {
 }
 
 class _GroupArenaPageState extends State<GroupArenaPage> {
-  final _groupService = GroupService();
-  final _authService = AuthService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetGroupMessagesUseCase _getGroupMessagesUseCase;
+  late final SubscribeToGroupMessagesUseCase _subscribeToGroupMessagesUseCase;
+  late final UnsubscribeFromGroupUseCase _unsubscribeFromGroupUseCase;
+  late final SendGroupMessageUseCase _sendGroupMessageUseCase;
+
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
 
   static const _purple = Color(0xFF6B4CE6);
 
-  late GroupModel _group;
-  List<GroupMessageModel> _messages = [];
+  late GroupEntity _group;
+  List<GroupMessageEntity> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
   String? _currentUserId;
@@ -37,14 +45,21 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
   void initState() {
     super.initState();
     _group = widget.group;
-    _currentUserId = _authService.currentUser?.id;
+
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getGroupMessagesUseCase = sl<GetGroupMessagesUseCase>();
+    _subscribeToGroupMessagesUseCase = sl<SubscribeToGroupMessagesUseCase>();
+    _unsubscribeFromGroupUseCase = sl<UnsubscribeFromGroupUseCase>();
+    _sendGroupMessageUseCase = sl<SendGroupMessageUseCase>();
+
+    _currentUserId = _getCurrentUserUseCase()?.id;
     _loadMessages();
-    _groupService.subscribeToGroupMessages(_group.id, _onNewMessage);
+    _subscribeToGroupMessagesUseCase(_group.id, _onNewMessage);
   }
 
   @override
   void dispose() {
-    _groupService.unsubscribeFromGroup(_group.id);
+    _unsubscribeFromGroupUseCase(_group.id);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -52,7 +67,7 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
 
   Future<void> _loadMessages() async {
     try {
-      final msgs = await _groupService.getMessages(_group.id);
+      final msgs = await _getGroupMessagesUseCase(_group.id);
       if (mounted) {
         setState(() {
           _messages = msgs;
@@ -65,7 +80,7 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
     }
   }
 
-  void _onNewMessage(GroupMessageModel msg) {
+  void _onNewMessage(GroupMessageEntity msg) {
     if (!mounted) return;
     // Avoid duplicates if we fetched it already
     if (_messages.any((m) => m.id == msg.id)) return;
@@ -92,16 +107,10 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
     _messageController.clear();
     setState(() => _isSending = true);
     try {
-      final msg = await _groupService.sendMessage(
-        groupId: _group.id,
-        content: text,
-      );
-      if (mounted) {
-        if (!_messages.any((m) => m.id == msg.id)) {
-          setState(() => _messages.add(msg));
-        }
-        _scrollToBottom();
-      }
+      await _sendGroupMessageUseCase(_group.id, text);
+      // Wait for real-time subscription to add it...
+      // Or we can construct a dummy entity and add it optimistically,
+      // but let's just let the subscription handle it for simplicity.
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -114,7 +123,7 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
   }
 
   void _openSettings() async {
-    final updated = await Navigator.of(context).push<GroupModel>(
+    final updated = await Navigator.of(context).push<GroupEntity>(
       MaterialPageRoute(builder: (_) => GroupSettingsPage(group: _group)),
     );
     if (updated != null && mounted) {
@@ -236,8 +245,8 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
     );
   }
 
-  Widget _buildMessageBubble(GroupMessageModel msg, int index) {
-    final isMe = msg.isMine(_currentUserId ?? '');
+  Widget _buildMessageBubble(GroupMessageEntity msg, int index) {
+    final isMe = msg.senderId == (_currentUserId ?? '');
     final showSender =
         !isMe && (index == 0 || _messages[index - 1].senderId != msg.senderId);
 
@@ -416,4 +425,3 @@ class _GroupArenaPageState extends State<GroupArenaPage> {
     );
   }
 }
-

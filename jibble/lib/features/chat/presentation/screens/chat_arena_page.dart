@@ -1,9 +1,15 @@
 ﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/chat/data/datasources/chat_service.dart';
-import 'package:jibble/features/chat/data/models/message_model.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_or_create_conversation_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_messages_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/mark_as_read_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/subscribe_to_messages_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/unsubscribe_from_messages_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:jibble/features/chat/domain/entities/message_entity.dart';
 import 'package:jibble/features/profile/presentation/screens/user_profile_page.dart';
 import 'package:jibble/features/profile/presentation/screens/fullscreen_photo_page.dart';
 
@@ -30,15 +36,21 @@ class ChatArenaPage extends StatefulWidget {
 }
 
 class _ChatArenaPageState extends State<ChatArenaPage> {
-  final _authService = AuthService();
-  final _chatService = ChatService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetOrCreateConversationUseCase _getOrCreateConversationUseCase;
+  late final GetMessagesUseCase _getMessagesUseCase;
+  late final MarkAsReadUseCase _markAsReadUseCase;
+  late final SubscribeToMessagesUseCase _subscribeToMessagesUseCase;
+  late final UnsubscribeFromMessagesUseCase _unsubscribeFromMessagesUseCase;
+  late final SendMessageUseCase _sendMessageUseCase;
+
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
 
   static const _primaryColor = Color(0xFF3B6FE8);
 
   String _conversationId = '';
-  List<MessageModel> _messages = [];
+  List<MessageEntity> _messages = [];
   bool _isLoading = true;
   bool _isSending = false;
   String? _currentUserId;
@@ -46,14 +58,22 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
   @override
   void initState() {
     super.initState();
-    _currentUserId = _authService.currentUser?.id;
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getOrCreateConversationUseCase = sl<GetOrCreateConversationUseCase>();
+    _getMessagesUseCase = sl<GetMessagesUseCase>();
+    _markAsReadUseCase = sl<MarkAsReadUseCase>();
+    _subscribeToMessagesUseCase = sl<SubscribeToMessagesUseCase>();
+    _unsubscribeFromMessagesUseCase = sl<UnsubscribeFromMessagesUseCase>();
+    _sendMessageUseCase = sl<SendMessageUseCase>();
+
+    _currentUserId = _getCurrentUserUseCase()?.id;
     _conversationId = widget.conversationId;
     _initConversation();
   }
 
   @override
   void dispose() {
-    _chatService.unsubscribeFromMessages(_conversationId);
+    _unsubscribeFromMessagesUseCase(_conversationId);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -63,13 +83,13 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
     try {
       // Get or create the conversation
       if (_conversationId.isEmpty) {
-        _conversationId = await _chatService.getOrCreateConversation(
+        _conversationId = await _getOrCreateConversationUseCase(
           widget.otherUserId,
         );
       }
 
       // Load existing messages
-      final messages = await _chatService.getMessages(_conversationId);
+      final messages = await _getMessagesUseCase(_conversationId);
 
       if (mounted) {
         setState(() {
@@ -80,14 +100,14 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
       }
 
       // Mark messages as read
-      await _chatService.markMessagesAsRead(_conversationId);
+      await _markAsReadUseCase(_conversationId);
 
       // Subscribe to new messages in real time
-      _chatService.subscribeToMessages(_conversationId, (message) {
+      _subscribeToMessagesUseCase(_conversationId, (message) {
         if (mounted) {
           setState(() => _messages.add(message));
           _scrollToBottom();
-          _chatService.markMessagesAsRead(_conversationId);
+          _markAsReadUseCase(_conversationId);
         }
       });
     } catch (e) {
@@ -137,11 +157,8 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
     _messageController.clear();
 
     try {
-      final message = await _chatService.sendMessage(_conversationId, content);
-      if (mounted) {
-        setState(() => _messages.add(message));
-        _scrollToBottom();
-      }
+      await _sendMessageUseCase(_conversationId, content);
+      // Let real-time handle adding new msg
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -337,7 +354,7 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
     );
   }
 
-  Widget _buildMessageBubble(MessageModel message) {
+  Widget _buildMessageBubble(MessageEntity message) {
     final isMine = message.senderId == _currentUserId;
 
     return Align(
@@ -399,4 +416,3 @@ class _ChatArenaPageState extends State<ChatArenaPage> {
     return '$h:$m';
   }
 }
-

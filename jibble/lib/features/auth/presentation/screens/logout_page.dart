@@ -1,5 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/core/theme/app_colors.dart';
+import 'package:jibble/core/theme/app_radius.dart';
+import 'package:jibble/core/theme/app_spacing.dart';
+import 'package:jibble/core/theme/text_styles.dart';
 
 /// Logout Page
 ///
@@ -11,9 +15,15 @@ class LogoutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logout'),
+        title: Text(
+          'Logout',
+          style: AppTextStyles.heading1.copyWith(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
         elevation: 0,
-        backgroundColor: Colors.red.shade600,
+        backgroundColor: AppColors.error,
         foregroundColor: Colors.white,
       ),
       body: Container(
@@ -21,14 +31,14 @@ class LogoutPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.red.shade600, Colors.red.shade50],
+            colors: [AppColors.error, AppColors.error.withValues(alpha: 0.1)],
             stops: const [0.0, 0.3],
           ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -47,31 +57,24 @@ class LogoutPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Icon(
-                      Icons.logout,
-                      size: 60,
-                      color: Colors.red.shade600,
-                    ),
+                    child: Icon(Icons.logout, size: 60, color: AppColors.error),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Title
                   Text(
                     'Logout',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading1.copyWith(color: Colors.white),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
                   // Description
                   Text(
                     'Are you sure you want to logout?',
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: AppTextStyles.bodyText.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: AppSpacing.xxl),
 
                   // Logout Button
                   SizedBox(
@@ -81,24 +84,25 @@ class LogoutPage extends StatelessWidget {
                         await _handleLogout(context);
                       },
                       icon: const Icon(Icons.logout),
-                      label: const Text(
+                      label: Text(
                         'Yes, Logout',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyText.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.red.shade600,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
+                        backgroundColor: AppColors.error,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadius.circularLg,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
                   // Cancel Button
                   SizedBox(
@@ -108,19 +112,21 @@ class LogoutPage extends StatelessWidget {
                         Navigator.of(context).pop();
                       },
                       icon: const Icon(Icons.cancel),
-                      label: const Text(
+                      label: Text(
                         'Cancel',
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: AppTextStyles.bodyText.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
+                        ),
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: Colors.white, width: 2),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadius.circularLg,
                         ),
                       ),
                     ),
@@ -155,4 +161,3 @@ class LogoutPage extends StatelessWidget {
     }
   }
 }
-

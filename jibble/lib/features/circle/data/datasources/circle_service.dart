@@ -1,5 +1,5 @@
 ﻿import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:jibble/core/network/supabase_config.dart';
+import 'package:jibble/core/config/supabase_config.dart';
 import 'package:jibble/features/circle/data/models/circle_member_model.dart';
 
 /// Circle Service

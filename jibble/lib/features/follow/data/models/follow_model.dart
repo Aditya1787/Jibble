@@ -1,17 +1,14 @@
+import 'package:jibble/features/follow/domain/entities/follow_entity.dart';
+
 /// Follow Model
 ///
 /// Represents a follow relationship between two users
-class FollowModel {
-  final String id;
-  final String followerId;
-  final String followingId;
-  final DateTime createdAt;
-
-  FollowModel({
-    required this.id,
-    required this.followerId,
-    required this.followingId,
-    required this.createdAt,
+class FollowModel extends FollowEntity {
+  const FollowModel({
+    required super.id,
+    required super.followerId,
+    required super.followingId,
+    required super.createdAt,
   });
 
   /// Create a FollowModel from JSON

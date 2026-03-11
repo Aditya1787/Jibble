@@ -2,15 +2,18 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
-import 'package:jibble/features/profile/data/datasources/profile_service.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/usecases/is_username_available_usecase.dart';
+import 'package:jibble/features/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:jibble/features/profile/domain/usecases/upload_profile_picture_usecase.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
 
 /// Edit Profile Page
 ///
 /// Allows the user to update their profile picture, username, display name, and bio.
 class EditProfilePage extends StatefulWidget {
-  final ProfileModel profile;
+  final ProfileEntity profile;
 
   const EditProfilePage({super.key, required this.profile});
 
@@ -20,8 +23,10 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _profileService = ProfileService();
-  final _authService = AuthService();
+  late final IsUsernameAvailableUseCase _isUsernameAvailableUseCase;
+  late final UpdateProfileUseCase _updateProfileUseCase;
+  late final UploadProfilePictureUseCase _uploadProfilePictureUseCase;
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
 
   late TextEditingController _usernameController;
   late TextEditingController _nameController;
@@ -35,6 +40,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+    _isUsernameAvailableUseCase = sl<IsUsernameAvailableUseCase>();
+    _updateProfileUseCase = sl<UpdateProfileUseCase>();
+    _uploadProfilePictureUseCase = sl<UploadProfilePictureUseCase>();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
     _usernameController = TextEditingController(text: widget.profile.username);
     _nameController = TextEditingController(text: widget.profile.name ?? '');
     _bioController = TextEditingController(text: widget.profile.bio ?? '');
@@ -135,7 +144,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
 
     try {
-      final available = await _profileService.isUsernameAvailable(trimmed);
+      final available = await _isUsernameAvailableUseCase(trimmed);
       if (mounted) {
         setState(() {
           _isCheckingUsername = false;
@@ -156,30 +165,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = _authService.currentUser!.id;
+      final userId = _getCurrentUserUseCase()!.id;
       String? newPicUrl;
 
       // Upload new profile picture if selected
       if (_newImageFile != null) {
-        newPicUrl = await _profileService.uploadProfilePicture(
-          userId: userId,
-          imageFile: _newImageFile!,
-        );
+        newPicUrl = await _uploadProfilePictureUseCase(userId, _newImageFile!);
       }
 
       final trimmedUsername = _usernameController.text.trim();
       final trimmedName = _nameController.text.trim();
       final trimmedBio = _bioController.text.trim();
 
-      final updated = await _profileService.updateProfile(
-        userId: userId,
-        username: trimmedUsername != widget.profile.username
-            ? trimmedUsername
-            : null,
+      final updatedProfile = ProfileEntity(
+        id: userId,
+        email: widget.profile.email,
+        username: trimmedUsername,
         name: trimmedName,
         bio: trimmedBio,
-        profilePictureUrl: newPicUrl,
+        dateOfBirth: widget.profile.dateOfBirth,
+        collegeName: widget.profile.collegeName,
+        profilePictureUrl: newPicUrl ?? widget.profile.profilePictureUrl,
+        profileCompleted: widget.profile.profileCompleted,
+        createdAt: widget.profile.createdAt,
+        updatedAt: DateTime.now(),
       );
+
+      final updated = await _updateProfileUseCase(updatedProfile);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -546,4 +558,3 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
-

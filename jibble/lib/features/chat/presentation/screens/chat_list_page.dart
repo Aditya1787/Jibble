@@ -1,9 +1,10 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/auth/data/datasources/auth_service.dart';
-import 'package:jibble/features/chat/data/datasources/chat_service.dart';
-import 'package:jibble/features/chat/data/datasources/group_service.dart';
-import 'package:jibble/features/chat/data/models/chat_model.dart';
-import 'package:jibble/features/chat/data/models/group_model.dart';
+import 'package:jibble/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_recent_chats_usecase.dart';
+import 'package:jibble/features/chat/domain/usecases/get_user_groups_usecase.dart';
+import 'package:jibble/features/chat/domain/entities/chat_entity.dart';
+import 'package:jibble/features/chat/domain/entities/group_entity.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/chat/presentation/widgets/chat_list_item_widget.dart';
 import 'package:jibble/features/chat/presentation/screens/create_group_page.dart';
 import 'package:jibble/features/chat/presentation/screens/group_arena_page.dart';
@@ -21,27 +22,30 @@ class ChatListPage extends StatefulWidget {
 
 class _ChatListPageState extends State<ChatListPage>
     with SingleTickerProviderStateMixin {
-  final _authService = AuthService();
-  final _chatService = ChatService();
-  final _groupService = GroupService();
+  late final GetCurrentUserUseCase _getCurrentUserUseCase;
+  late final GetRecentChatsUseCase _getRecentChatsUseCase;
+  late final GetUserGroupsUseCase _getUserGroupsUseCase;
 
   static const _purple = Color(0xFF6B4CE6);
 
   late TabController _tabController;
 
   // Direct chats
-  List<ChatModel> _chats = [];
+  List<ChatEntity> _chats = [];
   bool _chatsLoading = true;
   String? _chatsError;
 
   // Groups
-  List<GroupModel> _groups = [];
+  List<GroupEntity> _groups = [];
   bool _groupsLoading = true;
   String? _groupsError;
 
   @override
   void initState() {
     super.initState();
+    _getCurrentUserUseCase = sl<GetCurrentUserUseCase>();
+    _getRecentChatsUseCase = sl<GetRecentChatsUseCase>();
+    _getUserGroupsUseCase = sl<GetUserGroupsUseCase>();
     _tabController = TabController(length: 2, vsync: this);
     _loadChats();
     _loadGroups();
@@ -61,9 +65,9 @@ class _ChatListPageState extends State<ChatListPage>
       _chatsError = null;
     });
     try {
-      final user = _authService.currentUser;
+      final user = _getCurrentUserUseCase();
       if (user != null) {
-        final chats = await _chatService.getConversations();
+        final chats = await _getRecentChatsUseCase();
         if (mounted) setState(() => _chats = chats);
       }
     } catch (e) {
@@ -81,7 +85,7 @@ class _ChatListPageState extends State<ChatListPage>
       _groupsError = null;
     });
     try {
-      final groups = await _groupService.getMyGroups();
+      final groups = await _getUserGroupsUseCase();
       if (mounted) setState(() => _groups = groups);
     } catch (e) {
       if (mounted) setState(() => _groupsError = e.toString());
@@ -233,7 +237,7 @@ class _ChatListPageState extends State<ChatListPage>
     );
   }
 
-  Widget _buildGroupTile(GroupModel group) {
+  Widget _buildGroupTile(GroupEntity group) {
     return InkWell(
       onTap: () async {
         await Navigator.of(
@@ -447,4 +451,3 @@ class _ChatListPageState extends State<ChatListPage>
     _loadGroups(); // refresh list on return
   }
 }
-

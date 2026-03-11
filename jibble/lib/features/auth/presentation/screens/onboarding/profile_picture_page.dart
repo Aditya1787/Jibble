@@ -2,7 +2,14 @@
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:jibble/features/profile/data/datasources/profile_service.dart';
+import 'package:jibble/core/di/injection_container.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
+import 'package:jibble/features/profile/domain/usecases/create_profile_usecase.dart';
 import 'package:jibble/features/auth/data/datasources/auth_service.dart';
+import 'package:jibble/core/theme/app_colors.dart';
+import 'package:jibble/core/theme/app_radius.dart';
+import 'package:jibble/core/theme/app_spacing.dart';
+import 'package:jibble/core/theme/text_styles.dart';
 
 /// Profile Picture Upload Page
 ///
@@ -24,9 +31,17 @@ class ProfilePicturePage extends StatefulWidget {
 }
 
 class _ProfilePicturePageState extends State<ProfilePicturePage> {
-  final _profileService = ProfileService();
+  late final ProfileService _profileService;
+  late final CreateProfileUseCase _createProfileUseCase;
   final _authService = AuthService();
   final _imagePicker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _profileService = sl<ProfileService>();
+    _createProfileUseCase = sl<CreateProfileUseCase>();
+  }
 
   File? _selectedImage;
   bool _isLoading = false;
@@ -62,21 +77,24 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
       ),
       builder: (context) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt, color: Colors.blue),
-                title: const Text('Take Photo'),
+                leading: Icon(Icons.camera_alt, color: AppColors.primary),
+                title: Text('Take Photo', style: AppTextStyles.bodyText),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.blue),
-                title: const Text('Choose from Gallery'),
+                leading: Icon(Icons.photo_library, color: AppColors.primary),
+                title: Text(
+                  'Choose from Gallery',
+                  style: AppTextStyles.bodyText,
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
@@ -108,13 +126,17 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
       }
 
       // Create profile with all collected data
-      await _profileService.createProfile(
-        userId: userId,
-        username: widget.username,
-        dateOfBirth: widget.dateOfBirth,
-        collegeName: widget.collegeName,
-        profilePictureUrl: profilePictureUrl,
-        profileCompleted: true,
+      await _createProfileUseCase(
+        ProfileEntity(
+          id: userId,
+          username: widget.username,
+          dateOfBirth: widget.dateOfBirth,
+          collegeName: widget.collegeName,
+          profilePictureUrl: profilePictureUrl,
+          profileCompleted: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
       );
 
       // Navigate to home - AuthGate will handle this
@@ -146,12 +168,16 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
       final userId = _authService.currentUser!.id;
 
       // Create profile without picture
-      await _profileService.createProfile(
-        userId: userId,
-        username: widget.username,
-        dateOfBirth: widget.dateOfBirth,
-        collegeName: widget.collegeName,
-        profileCompleted: true,
+      await _createProfileUseCase(
+        ProfileEntity(
+          id: userId,
+          username: widget.username,
+          dateOfBirth: widget.dateOfBirth,
+          collegeName: widget.collegeName,
+          profileCompleted: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
       );
 
       // Navigate to home
@@ -177,9 +203,15 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Picture'),
+        title: Text(
+          'Profile Picture',
+          style: AppTextStyles.heading1.copyWith(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+        ),
         elevation: 0,
-        backgroundColor: Colors.purple.shade600,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Container(
@@ -187,14 +219,17 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.purple.shade600, Colors.purple.shade50],
+            colors: [
+              AppColors.primary,
+              AppColors.primary.withValues(alpha: 0.1),
+            ],
             stops: const [0.0, 0.3],
           ),
         ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -211,7 +246,7 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
                       _buildProgressDot(true),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Profile picture preview
                   GestureDetector(
@@ -240,45 +275,48 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
                           : Icon(
                               Icons.add_a_photo,
                               size: 60,
-                              color: Colors.purple.shade300,
+                              color: AppColors.primary.withValues(alpha: 0.5),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.md),
 
                   Text(
                     _selectedImage != null
                         ? 'Tap to change photo'
                         : 'Tap to add photo',
-                    style: TextStyle(
-                      fontSize: 14,
+                    style: AppTextStyles.bodyText.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: AppSpacing.xxl),
 
                   // Error message
                   if (_errorMessage != null)
                     Container(
                       padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 16),
+                      margin: const EdgeInsets.only(bottom: AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: AppRadius.circularMd,
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.5),
+                        ),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.error_outline,
-                            color: Colors.red.shade700,
+                            color: AppColors.error,
                             size: 20,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.sm),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(color: Colors.red.shade700),
+                              style: AppTextStyles.bodyText.copyWith(
+                                color: AppColors.error,
+                              ),
                             ),
                           ),
                         ],
@@ -291,11 +329,13 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _completeOnboarding,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.md,
                         ),
-                        backgroundColor: Colors.purple.shade600,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppRadius.circularLg,
+                        ),
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                       ),
                       child: _isLoading
@@ -309,23 +349,22 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
                                 ),
                               ),
                             )
-                          : const Text(
+                          : Text(
                               'Complete',
-                              style: TextStyle(
-                                fontSize: 16,
+                              style: AppTextStyles.bodyText.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.sm),
 
                   // Skip button
                   TextButton(
                     onPressed: _isLoading ? null : _skipStep,
-                    child: const Text(
+                    child: Text(
                       'Skip for now',
-                      style: TextStyle(
+                      style: AppTextStyles.bodyText.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
@@ -359,4 +398,3 @@ class _ProfilePicturePageState extends State<ProfilePicturePage> {
     );
   }
 }
-

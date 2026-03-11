@@ -1,6 +1,8 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/circle/data/datasources/circle_service.dart';
-import 'package:jibble/features/circle/data/models/circle_member_model.dart';
+import 'package:jibble/features/circle/domain/usecases/get_circle_members_usecase.dart';
+import 'package:jibble/features/circle/domain/usecases/search_circle_members_usecase.dart';
+import 'package:jibble/features/circle/domain/entities/circle_member_entity.dart';
+import 'package:jibble/core/di/injection_container.dart';
 import 'package:jibble/features/circle/presentation/screens/circle_member_tile.dart';
 
 /// Circle Members Page
@@ -22,13 +24,14 @@ class CircleMembersPage extends StatefulWidget {
 }
 
 class _CircleMembersPageState extends State<CircleMembersPage> {
-  final _circleService = CircleService();
+  late final GetCircleMembersUseCase _getCircleMembersUseCase;
+  late final SearchCircleMembersUseCase _searchCircleMembersUseCase;
   final _searchController = TextEditingController();
 
   static const _purple = Color(0xFF6B4CE6);
 
-  List<CircleMemberModel> _allMembers = [];
-  List<CircleMemberModel> _filteredMembers = [];
+  List<CircleMemberEntity> _allMembers = [];
+  List<CircleMemberEntity> _filteredMembers = [];
   bool _isLoading = true;
   bool _isSearching = false;
   String? _errorMessage;
@@ -36,6 +39,8 @@ class _CircleMembersPageState extends State<CircleMembersPage> {
   @override
   void initState() {
     super.initState();
+    _getCircleMembersUseCase = sl<GetCircleMembersUseCase>();
+    _searchCircleMembersUseCase = sl<SearchCircleMembersUseCase>();
     _loadMembers();
   }
 
@@ -51,7 +56,7 @@ class _CircleMembersPageState extends State<CircleMembersPage> {
       _errorMessage = null;
     });
     try {
-      final members = await _circleService.getCircleMembers(
+      final members = await _getCircleMembersUseCase(
         collegeName: widget.collegeName,
         excludeUserId: widget.currentUserId,
       );
@@ -82,7 +87,7 @@ class _CircleMembersPageState extends State<CircleMembersPage> {
     }
     setState(() => _isSearching = true);
     try {
-      final results = await _circleService.searchCircleMembers(
+      final results = await _searchCircleMembersUseCase(
         collegeName: widget.collegeName,
         query: query.trim(),
       );
@@ -299,4 +304,3 @@ class _CircleMembersPageState extends State<CircleMembersPage> {
     );
   }
 }
-

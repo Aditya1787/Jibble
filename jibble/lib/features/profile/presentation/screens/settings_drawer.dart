@@ -1,10 +1,10 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:jibble/features/profile/data/models/profile_model.dart';
+import 'package:jibble/features/profile/domain/entities/profile_entity.dart';
 import 'package:jibble/features/profile/presentation/screens/account_information_page.dart';
 import 'package:jibble/features/profile/presentation/screens/edit_profile_page.dart';
 
 class SettingsDrawer extends StatelessWidget {
-  final ProfileModel? profile;
+  final ProfileEntity? profile;
   final VoidCallback onLogout;
   final VoidCallback? onProfileUpdated;
 
@@ -173,4 +173,3 @@ class SettingsDrawer extends StatelessWidget {
     );
   }
 }
-

@@ -1,22 +1,17 @@
+import 'package:jibble/features/circle/domain/entities/circle_member_entity.dart';
+
 /// Circle Member Model
 ///
 /// A lightweight model representing a member inside a college Circle.
 /// Data is sourced directly from the `profiles` table using `college_name`.
-class CircleMemberModel {
-  final String id;
-  final String username;
-  final String? name;
-  final String? profilePictureUrl;
-  final String? collegeName;
-  final String? bio;
-
+class CircleMemberModel extends CircleMemberEntity {
   const CircleMemberModel({
-    required this.id,
-    required this.username,
-    this.name,
-    this.profilePictureUrl,
-    this.collegeName,
-    this.bio,
+    required super.id,
+    required super.username,
+    super.name,
+    super.profilePictureUrl,
+    super.collegeName,
+    super.bio,
   });
 
   factory CircleMemberModel.fromJson(Map<String, dynamic> json) {
@@ -29,12 +24,4 @@ class CircleMemberModel {
       bio: json['bio'] as String?,
     );
   }
-
-  /// Display name priority: name → username
-  String get displayName =>
-      (name != null && name!.isNotEmpty) ? name! : username;
-
-  /// Avatar initials fallback
-  String get initials =>
-      displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U';
 }
